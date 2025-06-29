@@ -16,20 +16,19 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
-# Database configuration
+# Replace the existing database configuration in app.py
 basedir = os.path.abspath(os.path.dirname(__file__))
-app.config["SQLALCHEMY_DATABASE_URI"] = (
-    f'sqlite:///{os.path.join(basedir, "lavender_spirit.db")}'
-)
+# Use environment variable for Render's persistent disk or fallback to local path
+DATABASE_PATH = os.getenv('DATABASE_PATH', os.path.join(basedir, 'lavender_spirit.db'))
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DATABASE_PATH}'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SECRET_KEY"] = "your-secret-key-here"
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
 
 db = SQLAlchemy(app)
 
-UPLOAD_FOLDER = os.path.join(basedir, "static", "uploads")
+UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', os.path.join(basedir, 'static', 'uploads'))
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 # Database Models
@@ -54,6 +53,7 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
+    role = db.Column(db.String(50), default="user")  # Added role column
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -62,12 +62,18 @@ class User(db.Model):
         return check_password_hash(self.password_hash, password)
 
     def __repr__(self):
-        return f"<User {self.name}>"
+        return f"<User {self.username}>"
 
 
-# Create tables
 with app.app_context():
     db.create_all()
+
+    # Add default user if none exist
+    if User.query.count() == 0:
+        default_user = User(username="Admin123", role="admin")
+        default_user.set_password("1122")
+        db.session.add(default_user)
+        db.session.commit()
 
     # Add sample projects if none exist
     if Project.query.count() == 0:
@@ -75,42 +81,42 @@ with app.app_context():
             Project(
                 title="Luxury Residential Complex",
                 description="A premium 200-unit residential development featuring modern amenities and sustainable design in North Riyadh.",
-                image_filename="https://images.pexels.com/photos/1838640/pexels-photo-1838640.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop",
+                image_filename="Example-5.jpeg",
                 project_type="Residential",
                 status="Completed",
             ),
             Project(
                 title="Commercial Office Tower",
                 description="30-story commercial complex with state-of-the-art facilities in Riyadh's business district.",
-                image_filename="https://images.pexels.com/photos/1714208/pexels-photo-1714208.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop",
+                image_filename="Example-1.jpeg",
                 project_type="Commercial",
                 status="In Progress",
             ),
             Project(
                 title="Infrastructure Development",
                 description="Major road and utility infrastructure project supporting Riyadh's urban expansion initiatives.",
-                image_filename="https://images.pexels.com/photos/1370704/pexels-photo-1370704.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop",
+                image_filename="Example-3.jpeg",
                 project_type="Infrastructure",
                 status="Completed",
             ),
             Project(
                 title="Industrial Facility",
                 description="Modern manufacturing facility with specialized construction requirements and safety standards.",
-                image_filename="https://images.pexels.com/photos/1647962/pexels-photo-1647962.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop",
+                image_filename="Example-1.jpeg",
                 project_type="Industrial",
                 status="Completed",
             ),
             Project(
                 title="Mixed-Use Development",
                 description="Integrated residential and commercial complex with retail spaces and community facilities.",
-                image_filename="https://images.pexels.com/photos/2219024/pexels-photo-2219024.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop",
+                image_filename="Example-3.jpeg",
                 project_type="Mixed-Use",
                 status="Planning",
             ),
             Project(
                 title="Healthcare Center",
                 description="Modern medical facility with advanced infrastructure and patient-centered design.",
-                image_filename="https://images.pexels.com/photos/236380/pexels-photo-236380.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop",
+                image_filename="Example-5.jpeg",
                 project_type="Healthcare",
                 status="In Progress",
             ),
@@ -223,10 +229,10 @@ def admin_users():
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     if not session.get("admin_logged_in"):
-        flash("Login required to access admin panel.", "warning")
         return redirect(url_for("login"))
 
     message = None
+    current_user = User.query.filter_by(username=session.get("username")).first()
 
     if request.method == "POST":
         form_type = request.form.get("form_type")
@@ -244,6 +250,9 @@ def admin():
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
                 image_filename = filename
+            else:
+                flash("Invalid or no image file provided.", "error")
+                return redirect(url_for("admin"))
 
             new_project = Project(
                 title=title,
@@ -275,39 +284,97 @@ def admin():
             message = "Project updated successfully!"
 
     projects = Project.query.order_by(Project.created_at.desc()).all()
-    return render_template("admin.html", message=message, projects=projects)
+    users = User.query.order_by(User.created_at.desc()).all()
+    return render_template(
+        "admin.html",
+        message=message,
+        projects=projects,
+        users=users,
+        current_user=current_user,
+    )
 
 
-@app.route("/signup", methods=["GET", "POST"])
-def signup():
-    if request.method == "POST":
-        username = request.form.get("username").strip()
-        password = request.form.get("password")
-        confirm_password = request.form.get("confirm_password")
-
-        # Validation
-        if User.query.filter_by(username=username).first():
-            flash("Username already exists.", "danger")
-            return redirect(url_for("signup"))
-
-        if password != confirm_password:
-            flash("Passwords do not match.", "danger")
-            return redirect(url_for("signup"))
-
-        if not username or not password:
-            flash("All fields are required.", "warning")
-            return redirect(url_for("signup"))
-
-        # Create and save new user
-        new_user = User(username=username)
-        new_user.set_password(password)
-        db.session.add(new_user)
-        db.session.commit()
-
-        flash("Signup successful! Please login.", "success")
+@app.route("/add_user", methods=["POST"])
+def add_user():
+    if not session.get("admin_logged_in"):
         return redirect(url_for("login"))
 
-    return render_template("signup.html")
+    current_user = User.query.filter_by(username=session.get("username")).first()
+    if current_user.role != "admin":
+        flash("Only admins can add users.", "error")
+        return redirect(url_for("admin"))
+
+    username = request.form.get("username").strip()
+    password = request.form.get("password")
+    confirm_password = request.form.get("confirm_password")
+    role = request.form.get("role")
+
+    # Validation
+    if User.query.filter_by(username=username).first():
+        flash("Username already exists.", "error")
+        return redirect(url_for("admin"))
+
+    if password != confirm_password:
+        flash("Passwords do not match.", "error")
+        return redirect(url_for("admin"))
+
+    if not username or not password or not role:
+        flash("All fields are required.", "error")
+        return redirect(url_for("admin"))
+
+    # Create and save new user
+    new_user = User(username=username, role=role)
+    new_user.set_password(password)
+    db.session.add(new_user)
+    db.session.commit()
+
+    flash("User added successfully!", "success")
+    return redirect(url_for("admin"))
+
+
+@app.route("/edit_user", methods=["POST"])
+def edit_user():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("login"))
+
+    current_user = User.query.filter_by(username=session.get("username")).first()
+    user_id = request.form.get("user_id")
+    user = User.query.get_or_404(user_id)
+
+    # Check permissions
+    if current_user.role != "admin" and current_user.id != user.id:
+        flash("You can only edit your own profile.", "error")
+        return redirect(url_for("admin"))
+
+    new_username = request.form.get("username").strip()
+    password = request.form.get("password")
+    confirm_password = request.form.get("confirm_password")
+    role = request.form.get("role") if current_user.role == "admin" else user.role
+
+    # Validation
+    existing_user = User.query.filter_by(username=new_username).first()
+    if existing_user and existing_user.id != user.id:
+        flash("Username already exists.", "error")
+        return redirect(url_for("admin"))
+
+    if password and password != confirm_password:
+        flash("Passwords do not match.", "error")
+        return redirect(url_for("admin"))
+
+    if not new_username:
+        flash("Username is required.", "error")
+        return redirect(url_for("admin"))
+
+    # Update user
+    user.username = new_username
+    if password:
+        user.set_password(password)
+    if current_user.role == "admin":
+        user.role = role
+    db.session.commit()
+
+    flash("User updated successfully!", "success")
+    return redirect(url_for("admin"))
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -321,10 +388,9 @@ def login():
         if user and user.check_password(password):
             session["admin_logged_in"] = True
             session["username"] = username
-            flash("Login successful!", "success")
             return redirect(url_for("admin"))
         else:
-            flash("Invalid username or password", "danger")
+            flash("Invalid username or password", "error")
 
     return render_template("login.html")
 
@@ -332,9 +398,9 @@ def login():
 @app.route("/logout")
 def logout():
     session.pop("admin_logged_in", None)
-    flash("Logged out successfully.", "info")
+    session.pop("username", None)
     return redirect(url_for("login"))
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000)

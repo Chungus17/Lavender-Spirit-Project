@@ -155,14 +155,13 @@ body {
 }
 
 .btn-primary {
-  color: var(--white);
+  color: var(--dark-gray);
   border-color: var(--accent-color);
 }
 
 .btn-primary:hover {
   background-color: var(--accent-color);
   color: var(--primary-color);
-  border-color: var(--primary-color);
   transform: translateY(-2px);
 }
 
