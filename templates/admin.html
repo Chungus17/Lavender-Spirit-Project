@@ -1,90 +1,252 @@
-<!-- templates/admin.html -->
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Admin - Add Project</title>
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f8f9fa;
+    }
 
-    <!-- In <head> -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+    /* Navbar */
+    .navbar {
+      background-color: #333;
+      color: #fff;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-    <!-- Before </body> -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  </head>
-  <body>
-    <h1>Add New Project</h1>
-{% if message %}<p style="color: green;">{{ message }}</p>{% endif %}
+    .navbar h1 {
+      margin: 0;
+      font-size: 20px;
+    }
 
-<form method="POST" enctype="multipart/form-data">
-  <input type="hidden" name="form_type" value="create">
-  <input type="text" name="title" placeholder="Title" required><br><br>
-  <textarea name="description" placeholder="Description" required></textarea><br><br>
-  <input type="text" name="project_type" placeholder="Project Type" required><br><br>
-  <select name="status" required>
-    <option value="Planning">Planning</option>
-    <option value="In Progress">In Progress</option>
-    <option value="Completed">Completed</option>
-  </select><br><br>
-  <input type="file" name="image_file" required><br><br>
-  <button type="submit">Add Project</button>
-</form>
+    .navbar a {
+      color: #fff;
+      text-decoration: none;
+      background-color: #e74c3c;
+      padding: 6px 12px;
+      border-radius: 4px;
+    }
 
-<hr>
-<h2>All Projects</h2>
-<ul>
-  {% for project in projects %}
-    <li>
-      <strong>{{ project.title }}</strong> - {{ project.status }}<br>
-      <img src="{{ url_for('static', filename='uploads/' + project.image_filename) }}" width="100"><br>
-      <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ project.id }}">Edit</button>
-    </li>
+    .container {
+      padding: 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
 
-    <!-- Edit Modal -->
-    <div class="modal fade" id="editModal{{ project.id }}" tabindex="-1" aria-labelledby="editModalLabel{{ project.id }}" aria-hidden="true">
-      <div class="modal-dialog">
+    .message {
+      background-color: #dff0d8;
+      color: #3c763d;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+    }
+
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+
+    .card h2 {
+      margin-top: 0;
+    }
+
+    input[type="text"],
+    textarea,
+    select,
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .project-card {
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 15px;
+    }
+
+    .project-card img {
+      max-width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 20px;
+      width: 400px;
+      border-radius: 6px;
+      position: relative;
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <div class="navbar">
+    <h1>Admin Dashboard</h1>
+    <a href="{{ url_for('logout') }}">Logout</a>
+  </div>
+
+  <div class="container">
+    {% if message %}
+      <div class="message">{{ message }}</div>
+    {% endif %}
+
+    <!-- Add Project -->
+    <div class="card">
+      <h2>Add New Project</h2>
+      <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="form_type" value="create">
+
+        <label>Title:</label>
+        <input type="text" name="title" required>
+
+        <label>Description:</label>
+        <textarea name="description" required></textarea>
+
+        <label>Project Type:</label>
+        <input type="text" name="project_type" required>
+
+        <label>Status:</label>
+        <select name="status" required>
+          <option value="Planning">Planning</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+        </select>
+
+        <label>Image:</label>
+        <input type="file" name="image_file" required>
+
+        <button type="submit">Add Project</button>
+      </form>
+    </div>
+
+    <!-- Project List -->
+    <h2>All Projects</h2>
+    <div class="projects-grid">
+      {% for project in projects %}
+      <div class="project-card">
+        <h4>{{ project.title }}</h4>
+        <p><strong>Status:</strong> {{ project.status }}</p>
+        <img src="{{ url_for('static', filename='uploads/' + project.image_filename) }}" alt="Project Image">
+        <p>{{ project.description }}</p>
+        <button onclick="openModal('modal{{ project.id }}')">Edit</button>
+      </div>
+
+      <!-- Modal -->
+      <div class="modal" id="modal{{ project.id }}">
         <div class="modal-content">
+          <span class="close-btn" onclick="closeModal('modal{{ project.id }}')">&times;</span>
+          <h3>Edit Project</h3>
           <form method="POST" enctype="multipart/form-data">
             <input type="hidden" name="form_type" value="edit">
             <input type="hidden" name="project_id" value="{{ project.id }}">
-            <div class="modal-header">
-              <h5 class="modal-title" id="editModalLabel{{ project.id }}">Edit Project</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <label>Title:</label>
-              <input type="text" name="title" value="{{ project.title }}" class="form-control" required>
 
-              <label>Description:</label>
-              <textarea name="description" class="form-control" required>{{ project.description }}</textarea>
+            <label>Title:</label>
+            <input type="text" name="title" value="{{ project.title }}" required>
 
-              <label>Project Type:</label>
-              <input type="text" name="project_type" value="{{ project.project_type }}" class="form-control" required>
+            <label>Description:</label>
+            <textarea name="description" required>{{ project.description }}</textarea>
 
-              <label>Status:</label>
-              <select name="status" class="form-control" required>
-                <option value="Planning" {% if project.status == 'Planning' %}selected{% endif %}>Planning</option>
-                <option value="In Progress" {% if project.status == 'In Progress' %}selected{% endif %}>In Progress</option>
-                <option value="Completed" {% if project.status == 'Completed' %}selected{% endif %}>Completed</option>
-              </select>
+            <label>Project Type:</label>
+            <input type="text" name="project_type" value="{{ project.project_type }}" required>
 
-              <label>Replace Image:</label>
-              <input type="file" name="image_file" class="form-control">
+            <label>Status:</label>
+            <select name="status" required>
+              <option value="Planning" {% if project.status == 'Planning' %}selected{% endif %}>Planning</option>
+              <option value="In Progress" {% if project.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+              <option value="Completed" {% if project.status == 'Completed' %}selected{% endif %}>Completed</option>
+            </select>
 
-              <p>Current Image:</p>
-              <img src="{{ url_for('static', filename='uploads/' + project.image_filename) }}" width="100">
-            </div>
-            <div class="modal-footer">
-              <button type="submit" class="btn btn-success">Save Changes</button>
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-            </div>
+            <label>Replace Image:</label>
+            <input type="file" name="image_file">
+
+            <p>Current Image:</p>
+            <img src="{{ url_for('static', filename='uploads/' + project.image_filename) }}" width="100">
+
+            <br><br>
+            <button type="submit">Save Changes</button>
           </form>
         </div>
       </div>
+      {% endfor %}
     </div>
-  {% endfor %}
-</ul>
-  </body>
+  </div>
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).style.display = "flex";
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = "none";
+    }
+
+    // Optional: Close modals on outside click
+    window.onclick = function(event) {
+      const modals = document.querySelectorAll('.modal');
+      modals.forEach(modal => {
+        if (event.target === modal) {
+          modal.style.display = "none";
+        }
+      });
+    }
+  </script>
+</body>
 </html>
