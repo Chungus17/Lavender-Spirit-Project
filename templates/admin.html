@@ -67,8 +67,18 @@
                   </div>
 
                   <div class="form-field">
+                    <label style="text-align: right;">العنوان:</label>
+                    <input type="text" name="title_ar" value="{{ project.title_ar }}" required>
+                  </div>
+
+                  <div class="form-field">
                     <label>Project Type:</label>
                     <input type="text" name="project_type" value="{{ project.project_type }}" required>
+                  </div>
+
+                  <div class="form-field">
+                    <label style="text-align: right;">نوع المشروع</label>
+                    <input type="text" name="project_type_ar" value="{{ project.project_type_ar }}" required>
                   </div>
 
                   <div class="form-field">
@@ -81,8 +91,22 @@
                   </div>
 
                   <div class="form-field">
+                    <label style="text-align: right;">الحالة</label>
+                    <select name="status_ar" required>
+                      <option value="التخطيط" {% if project.status_ar == 'التخطيط' %}selected{% endif %}>التخطيط</option>
+                      <option value="جاري التنفيز" {% if project.status_ar == 'جاري التنفيز' %}selected{% endif %}>جاري التنفيز</option>
+                      <option value="متكمل" {% if project.status_ar == 'متكمل' %}selected{% endif %}>متكمل</option>
+                    </select>
+                  </div>
+
+                  <div class="form-field">
                     <label>Description:</label>
                     <textarea name="description" required>{{ project.description }}</textarea>
+                  </div>
+
+                  <div class="form-field">
+                    <label style="text-align: right;">الوصف</label>
+                    <textarea name="description_ar" required> {{ project.description_ar }}</textarea>
                   </div>
 
                   <div class="form-field">
@@ -118,8 +142,18 @@
               </div>
 
               <div class="form-field">
+                <label style="text-align: right;">العنوان:</label>
+                <input type="text" name="title_ar" required>
+              </div>
+
+              <div class="form-field">
                 <label>Project Type:</label>
                 <input type="text" name="project_type" required>
+              </div>
+
+              <div class="form-field">
+                <label style="text-align: right;">نوع المشروع</label>
+                <input type="text" name="project_type_ar" required>
               </div>
 
               <div class="form-field">
@@ -132,8 +166,22 @@
               </div>
 
               <div class="form-field">
+                <label style="text-align: right;">الحالة</label>
+                <select name="status_ar" required>
+                  <option value="التخطيط">التخطيط</option>
+                  <option value="جاري التنفيز">جاري التنفيز</option>
+                  <option value="متكمل">متكمل</option>
+                </select>
+              </div>
+
+              <div class="form-field">
                 <label>Description:</label>
                 <textarea name="description" required></textarea>
+              </div>
+
+              <div class="form-field">
+                <label style="text-align: right;">الوصف</label>
+                <textarea name="description_ar" required></textarea>
               </div>
 
               <div class="form-field">
