@@ -41,10 +41,14 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
+    title_ar = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
+    description_ar = db.Column(db.Text, nullable=False)
     image_filename = db.Column(db.String(255), nullable=True)
     project_type = db.Column(db.String(100), nullable=False)
+    project_type_ar = db.Column(db.String(100), nullable=False)
     status = db.Column(db.String(50), nullable=False)
+    status_ar = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
@@ -83,45 +87,69 @@ with app.app_context():
         sample_projects = [
             Project(
                 title="Luxury Residential Complex",
+                title_ar="مجمع سكني فاخر",
                 description="A premium 200-unit residential development featuring modern amenities and sustainable design in North Riyadh.",
+                description_ar="تطوير سكني متقدم يضم 200 وحدة مع وسائل راحة حديثة وتصميم مستدام في شمال الرياض.",
                 image_filename="Example-5.jpeg",
                 project_type="Residential",
+                project_type_ar="سكني",
                 status="Completed",
+                status_ar="مكتمل",
             ),
             Project(
                 title="Commercial Office Tower",
+                title_ar="برج مكاتب تجاري",
                 description="30-story commercial complex with state-of-the-art facilities in Riyadh's business district.",
+                description_ar="مجمع تجاري من 30 طابقًا مع مرافق حديثة في منطقة الأعمال بالرياض.",
                 image_filename="Example-1.jpeg",
                 project_type="Commercial",
+                project_type_ar="تجاري",
                 status="In Progress",
+                status_ar="قيد التنفيذ",
             ),
             Project(
                 title="Infrastructure Development",
+                title_ar="تطوير البنية التحتية",
                 description="Major road and utility infrastructure project supporting Riyadh's urban expansion initiatives.",
+                description_ar="مشروع رئيسي للطرق والمرافق يدعم مبادرات التوسع الحضري في الرياض.",
                 image_filename="Example-3.jpeg",
                 project_type="Infrastructure",
+                project_type_ar="بنية تحتية",
                 status="Completed",
+                status_ar="مكتمل",
             ),
             Project(
                 title="Industrial Facility",
+                title_ar="منشأة صناعية",
                 description="Modern manufacturing facility with specialized construction requirements and safety standards.",
+                description_ar="منشأة تصنيع حديثة مع متطلبات بناء متخصصة ومعايير سلامة عالية.",
                 image_filename="Example-1.jpeg",
                 project_type="Industrial",
+                project_type_ar="صناعي",
                 status="Completed",
+                status_ar="مكتمل",
             ),
             Project(
                 title="Mixed-Use Development",
+                title_ar="تطوير متعدد الاستخدامات",
                 description="Integrated residential and commercial complex with retail spaces and community facilities.",
+                description_ar="مجمع سكني وتجاري متكامل مع مساحات تجارية ومرافق مجتمعية.",
                 image_filename="Example-3.jpeg",
                 project_type="Mixed-Use",
+                project_type_ar="متعدد الاستخدامات",
                 status="Planning",
+                status_ar="تخطيط",
             ),
             Project(
                 title="Healthcare Center",
+                title_ar="مركز رعاية صحية",
                 description="Modern medical facility with advanced infrastructure and patient-centered design.",
+                description_ar="منشأة طبية حديثة مع بنية تحتية متقدمة وتصميم يركز على المرضى.",
                 image_filename="Example-5.jpeg",
                 project_type="Healthcare",
+                project_type_ar="رعاية صحية",
                 status="In Progress",
+                status_ar="قيد التنفيذ",
             ),
         ]
 
@@ -154,10 +182,14 @@ def get_projects():
             {
                 "id": project.id,
                 "title": project.title,
+                "title_ar": project.title_ar,
                 "description": project.description,
+                "description_ar": project.description_ar,
                 "image_filename": project.image_filename,
                 "project_type": project.project_type,
+                "project_type_ar": project.project_type_ar,
                 "status": project.status,
+                "status_ar": project.status_ar,
                 "created_at": project.created_at.isoformat(),
             }
         )
@@ -210,9 +242,13 @@ def admin():
 
         if form_type == "create":
             title = request.form.get("title")
+            title_ar = request.form.get("title_ar")
             description = request.form.get("description")
+            description_ar = request.form.get("description_ar")
             project_type = request.form.get("project_type")
+            project_type_ar = request.form.get("project_type_ar")
             status = request.form.get("status")
+            status_ar = request.form.get("status_ar")
             file = request.files.get("image_file")
 
             image_filename = None
@@ -228,10 +264,14 @@ def admin():
 
             new_project = Project(
                 title=title,
+                title_ar=title_ar,
                 description=description,
+                description_ar=description_ar,
                 image_filename=image_filename,
                 project_type=project_type,
+                project_type_ar=project_type_ar,
                 status=status,
+                status_ar=status_ar,
             )
             db.session.add(new_project)
             db.session.commit()
@@ -241,9 +281,13 @@ def admin():
             project_id = request.form.get("project_id")
             project = Project.query.get_or_404(project_id)
             project.title = request.form.get("title")
+            project.title_ar = request.form.get("title_ar")
             project.description = request.form.get("description")
+            project.description_ar = request.form.get("description_ar")
             project.project_type = request.form.get("project_type")
+            project.project_type_ar = request.form.get("project_type_ar")
             project.status = request.form.get("status")
+            project.status_ar = request.form.get("status_ar")
 
             file = request.files.get("image_file")
             if file and allowed_file(file.filename):

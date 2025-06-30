@@ -1,12 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="html-root">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>
+    <title id="page-title">
       Lavender Spirit - Premier Construction & Contracting in Riyadh
     </title>
     <link rel="stylesheet" href="/static/css/styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <!-- Navigation -->
@@ -20,15 +24,35 @@
                 alt="Lavender Spirit"
               />
             </div>
-            <span class="brand-name">Lavender Spirit</span>
+            <span class="brand-name" data-translate="brandName"
+              >Lavender Spirit</span
+            >
           </div>
         </div>
 
         <div class="nav-menu" id="nav-menu">
-          <a href="#home" class="nav-link">Home</a>
-          <a href="#about" class="nav-link">About</a>
-          <a href="#projects" class="nav-link">Projects</a>
-          <a href="#contact" class="nav-link">Contact</a>
+          <a href="#home" class="nav-link" data-translate="navHome">Home</a>
+          <a href="#about" class="nav-link" data-translate="navAbout">About</a>
+          <a href="#projects" class="nav-link" data-translate="navProjects"
+            >Projects</a
+          >
+          <a href="#contact" class="nav-link" data-translate="navContact"
+            >Contact</a
+          >
+
+          <!-- Language Toggle -->
+          <div class="language-toggle">
+            <input
+              type="checkbox"
+              id="language-switch"
+              class="language-switch"
+            />
+            <label for="language-switch" class="language-label">
+              <span class="language-text en">EN</span>
+              <span class="language-text ar">عر</span>
+              <div class="language-slider"></div>
+            </label>
+          </div>
         </div>
 
         <div class="hamburger" id="hamburger">
@@ -52,9 +76,10 @@
       <div class="container">
         <div class="hero-content">
           <h1 class="hero-title">
-            Building Excellence in<br /><span class="accent-text">Riyadh</span>
+            <span data-translate="heroTitle1">Building Excellence in</span>
+            <span class="accent-text" data-translate="heroTitle2">Riyadh</span>
           </h1>
-          <p class="hero-subtitle">
+          <p class="hero-subtitle" data-translate="heroSubtitle">
             Premier construction and contracting services delivering quality
             projects across Saudi Arabia with precision, innovation, and trust.
           </p>
@@ -62,12 +87,14 @@
             <button
               class="btn btn-primary"
               onclick="scrollToSection('contact')"
+              data-translate="getQuote"
             >
               Get Quote
             </button>
             <button
               class="btn btn-secondary"
               onclick="scrollToSection('projects')"
+              data-translate="viewProjects"
             >
               View Projects
             </button>
@@ -82,19 +109,27 @@
         <div class="stats-grid">
           <div class="stat-item">
             <div class="stat-number" data-target="150">0</div>
-            <div class="stat-label">Projects Completed</div>
+            <div class="stat-label" data-translate="projectsCompleted">
+              Projects Completed
+            </div>
           </div>
           <div class="stat-item">
             <div class="stat-number" data-target="200">0</div>
-            <div class="stat-label">Happy Clients</div>
+            <div class="stat-label" data-translate="happyClients">
+              Happy Clients
+            </div>
           </div>
           <div class="stat-item">
             <div class="stat-number" data-target="15">0</div>
-            <div class="stat-label">Years Experience</div>
+            <div class="stat-label" data-translate="yearsExperience">
+              Years Experience
+            </div>
           </div>
           <div class="stat-item">
             <div class="stat-number" data-target="50">0</div>
-            <div class="stat-label">Expert Team</div>
+            <div class="stat-label" data-translate="expertTeam">
+              Expert Team
+            </div>
           </div>
         </div>
       </div>
@@ -105,8 +140,10 @@
       <div class="container">
         <div class="about-content">
           <div class="about-text">
-            <h2 class="section-title">Building Dreams Into Reality</h2>
-            <p class="section-subtitle">
+            <h2 class="section-title" data-translate="aboutTitle">
+              Building Dreams Into Reality
+            </h2>
+            <p class="section-subtitle" data-translate="aboutSubtitle">
               With over 15 years of excellence in construction and contracting,
               Lavender Spirit has established itself as Riyadh's trusted partner
               for premium construction solutions.
@@ -116,8 +153,8 @@
               <div class="feature-item">
                 <div class="feature-icon">🏗️</div>
                 <div class="feature-content">
-                  <h3>Expert Craftsmanship</h3>
-                  <p>
+                  <h3 data-translate="feature1Title">Expert Craftsmanship</h3>
+                  <p data-translate="feature1Desc">
                     Our skilled professionals deliver exceptional quality in
                     every project, from residential to commercial developments.
                   </p>
@@ -127,8 +164,8 @@
               <div class="feature-item">
                 <div class="feature-icon">⚡</div>
                 <div class="feature-content">
-                  <h3>Timely Delivery</h3>
-                  <p>
+                  <h3 data-translate="feature2Title">Timely Delivery</h3>
+                  <p data-translate="feature2Desc">
                     We pride ourselves on completing projects on schedule
                     without compromising on quality or safety standards.
                   </p>
@@ -138,8 +175,8 @@
               <div class="feature-item">
                 <div class="feature-icon">🎯</div>
                 <div class="feature-content">
-                  <h3>Innovation Focus</h3>
-                  <p>
+                  <h3 data-translate="feature3Title">Innovation Focus</h3>
+                  <p data-translate="feature3Desc">
                     Utilizing cutting-edge technology and modern construction
                     techniques to exceed client expectations.
                   </p>
@@ -150,6 +187,7 @@
             <button
               class="btn btn-primary"
               onclick="scrollToSection('contact')"
+              data-translate="startProject"
             >
               Start Your Project
             </button>
@@ -169,32 +207,18 @@
     <section id="projects" class="projects">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title">Our Featured Projects</h2>
-          <p class="section-subtitle">
+          <h2 class="section-title" data-translate="projectsTitle">
+            Our Featured Projects
+          </h2>
+          <p class="section-subtitle" data-translate="projectsSubtitle">
             Showcasing our commitment to excellence through diverse construction
             and contracting projects across Riyadh
           </p>
         </div>
 
+        <!-- Projects will be dynamically loaded here by JavaScript -->
         <div class="projects-grid">
-          {% for project in projects %}
-          <div class="project-card">
-            <div class="project-image">
-              <img
-                src="{{ url_for('static', filename='uploads/' + project.image_filename) }}"
-                alt="{{ project.title }}"
-              />
-            </div>
-            <div class="project-content">
-              <h3>{{ project.title }}</h3>
-              <p>{{ project.description }}</p>
-              <div class="project-meta">
-                <span class="project-type">{{ project.project_type }}</span>
-                <span class="project-status">{{ project.status }}</span>
-              </div>
-            </div>
-          </div>
-          {% endfor %}
+          <!-- Dynamic projects from database will be inserted here -->
         </div>
       </div>
     </section>
@@ -204,8 +228,10 @@
       <div class="container">
         <div class="contact-content">
           <div class="contact-info">
-            <h2 class="section-title">Get In Touch</h2>
-            <p class="section-subtitle">
+            <h2 class="section-title" data-translate="contactTitle">
+              Get In Touch
+            </h2>
+            <p class="section-subtitle" data-translate="contactSubtitle">
               Ready to start your construction project? Contact us today for a
               consultation and personalized quote.
             </p>
@@ -214,8 +240,8 @@
               <div class="contact-item">
                 <div class="contact-icon">📍</div>
                 <div class="contact-text">
-                  <h4>Location</h4>
-                  <p>
+                  <h4 data-translate="locationLabel">Location</h4>
+                  <p data-translate="locationText">
                     King Fahd Road, Al Olaya District<br />Riyadh, Saudi Arabia
                   </p>
                 </div>
@@ -224,7 +250,7 @@
               <div class="contact-item">
                 <div class="contact-icon">📞</div>
                 <div class="contact-text">
-                  <h4>Phone</h4>
+                  <h4 data-translate="phoneLabel">Phone</h4>
                   <p>+966 11 XXX XXXX</p>
                 </div>
               </div>
@@ -232,7 +258,7 @@
               <div class="contact-item">
                 <div class="contact-icon">✉️</div>
                 <div class="contact-text">
-                  <h4>Email</h4>
+                  <h4 data-translate="emailLabel">Email</h4>
                   <p>info@lavenderspirit.sa</p>
                 </div>
               </div>
@@ -240,8 +266,8 @@
               <div class="contact-item">
                 <div class="contact-icon">🕒</div>
                 <div class="contact-text">
-                  <h4>Business Hours</h4>
-                  <p>
+                  <h4 data-translate="hoursLabel">Business Hours</h4>
+                  <p data-translate="hoursText">
                     Sunday - Thursday: 8:00 AM - 6:00 PM<br />Friday - Saturday:
                     Closed
                   </p>
@@ -257,13 +283,14 @@
               action="/contact"
               method="POST"
             >
-              <h3>Send Us a Message</h3>
+              <h3 data-translate="formTitle">Send Us a Message</h3>
 
               <div class="form-group">
                 <input
                   type="text"
                   id="name"
                   name="name"
+                  data-translate-placeholder="namePlaceholder"
                   placeholder="Your Name"
                   required
                 />
@@ -274,6 +301,7 @@
                   type="email"
                   id="email"
                   name="email"
+                  data-translate-placeholder="emailPlaceholder"
                   placeholder="Your Email"
                   required
                 />
@@ -284,20 +312,40 @@
                   type="tel"
                   id="phone"
                   name="phone"
+                  data-translate-placeholder="phonePlaceholder"
                   placeholder="Your Phone"
                 />
               </div>
 
               <div class="form-group">
                 <select id="service" name="service" required>
-                  <option value="">Select Service</option>
-                  <option value="residential">Residential Construction</option>
-                  <option value="commercial">Commercial Construction</option>
-                  <option value="infrastructure">
+                  <option value="" data-translate="selectService">
+                    Select Service
+                  </option>
+                  <option
+                    value="residential"
+                    data-translate="residentialService"
+                  >
+                    Residential Construction
+                  </option>
+                  <option value="commercial" data-translate="commercialService">
+                    Commercial Construction
+                  </option>
+                  <option
+                    value="infrastructure"
+                    data-translate="infrastructureService"
+                  >
                     Infrastructure Development
                   </option>
-                  <option value="renovation">Renovation & Remodeling</option>
-                  <option value="consultation">Consultation</option>
+                  <option value="renovation" data-translate="renovationService">
+                    Renovation & Remodeling
+                  </option>
+                  <option
+                    value="consultation"
+                    data-translate="consultationService"
+                  >
+                    Consultation
+                  </option>
                 </select>
               </div>
 
@@ -305,13 +353,18 @@
                 <textarea
                   id="message"
                   name="message"
+                  data-translate-placeholder="messagePlaceholder"
                   placeholder="Tell us about your project"
                   rows="5"
                   required
                 ></textarea>
               </div>
 
-              <button type="submit" class="btn btn-primary btn-full">
+              <button
+                type="submit"
+                class="btn btn-primary btn-full"
+                data-translate="sendMessage"
+              >
                 Send Message
               </button>
             </form>
@@ -328,43 +381,67 @@
             <div class="footer-brand">
               <div class="logo">
                 <img
-                  src="/static/images/logo-without-text.svg"
+                  src="https://images.pexels.com/photos/1105766/pexels-photo-1105766.jpeg?auto=compress&cs=tinysrgb&w=40&h=40&fit=crop"
                   alt="Lavender Spirit"
                 />
               </div>
-              <span class="brand-name">Lavender Spirit</span>
+              <span class="brand-name" data-translate="brandName"
+                >Lavender Spirit</span
+              >
             </div>
-            <p>
+            <p data-translate="footerDesc">
               Building excellence in construction and contracting across Riyadh
               with a commitment to quality, innovation, and client satisfaction.
             </p>
           </div>
 
           <div class="footer-section">
-            <h4>Services</h4>
+            <h4 data-translate="servicesHeader">Services</h4>
             <ul>
-              <li><a href="#projects">Residential Construction</a></li>
-              <li><a href="#projects">Commercial Buildings</a></li>
-              <li><a href="#projects">Infrastructure Development</a></li>
-              <li><a href="#projects">Renovation Services</a></li>
+              <li>
+                <a href="#projects" data-translate="residentialConstruction"
+                  >Residential Construction</a
+                >
+              </li>
+              <li>
+                <a href="#projects" data-translate="commercialBuildings"
+                  >Commercial Buildings</a
+                >
+              </li>
+              <li>
+                <a href="#projects" data-translate="infrastructureDev"
+                  >Infrastructure Development</a
+                >
+              </li>
+              <li>
+                <a href="#projects" data-translate="renovationServices"
+                  >Renovation Services</a
+                >
+              </li>
             </ul>
           </div>
 
           <div class="footer-section">
-            <h4>Company</h4>
+            <h4 data-translate="companyHeader">Company</h4>
             <ul>
-              <li><a href="#about">About Us</a></li>
-              <li><a href="#projects">Our Projects</a></li>
-              <li><a href="#contact">Contact</a></li>
-              <li><a href="#contact">Get Quote</a></li>
+              <li><a href="#about" data-translate="aboutUs">About Us</a></li>
+              <li>
+                <a href="#projects" data-translate="ourProjects"
+                  >Our Projects</a
+                >
+              </li>
+              <li><a href="#contact" data-translate="contact">Contact</a></li>
+              <li>
+                <a href="#contact" data-translate="getQuote">Get Quote</a>
+              </li>
             </ul>
           </div>
 
           <div class="footer-section">
-            <h4>Contact Info</h4>
+            <h4 data-translate="contactInfo">Contact Info</h4>
             <ul>
-              <li>King Fahd Road, Al Olaya</li>
-              <li>Riyadh, Saudi Arabia</li>
+              <li data-translate="footerAddress1">King Fahd Road, Al Olaya</li>
+              <li data-translate="footerAddress2">Riyadh, Saudi Arabia</li>
               <li>+966 11 XXX XXXX</li>
               <li>info@lavenderspirit.sa</li>
             </ul>
@@ -372,14 +449,13 @@
         </div>
 
         <div class="footer-bottom">
-          <p>
+          <p data-translate="copyright">
             &copy; 2024 Lavender Spirit Construction & Contracting. All rights
             reserved.
           </p>
         </div>
       </div>
     </footer>
-
     <script src="/static/js/script.js"></script>
   </body>
 </html>

@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap");
 
 :root {
   /*--------------------------------C  O  L  O  R  S----------------------------------*/
@@ -14,6 +15,7 @@
   /*----------------------------------F  O  N  T  S-----------------------------------*/
   --ff-lato: "lato", sans-serif;
   --ff-playfair: "playfair display", sans-serif;
+  --ff-arabic: "Cairo", serif;
 
   --fs-primary: 10px;
   --fw-bold: 700;
@@ -96,6 +98,22 @@ body {
   font-size: 1.6rem;
   line-height: 1.7;
   overflow-x: hidden;
+  transition: var(--transition);
+}
+
+/* Arabic styles */
+body.arabic {
+  font-family: var(--ff-arabic);
+  text-align: right;
+}
+
+body.arabic * {
+  text-align: right;
+}
+
+body.arabic .hero-content,
+body.arabic .section-header {
+  text-align: center;
 }
 
 ::-webkit-scrollbar {
@@ -131,11 +149,20 @@ body {
   color: var(--dark-gray);
 }
 
+body.arabic .section-title {
+  font-family: var(--ff-arabic);
+  line-height: 1.8;
+}
+
 .section-subtitle {
   font-size: 1.8rem;
   line-height: 1.6;
   color: var(--medium-gray);
   margin-bottom: 3rem;
+}
+
+body.arabic .section-subtitle {
+  line-height: 2;
 }
 
 .accent-text {
@@ -155,26 +182,23 @@ body {
 }
 
 .btn-primary {
-  color: var(--dark-gray);
+  color: var(--primary-color);
   border-color: var(--accent-color);
+  background-color: var(--accent-color);
 }
 
 .btn-primary:hover {
-  background-color: var(--accent-color);
-  color: var(--primary-color);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
 }
 
 .btn-secondary {
-  background-color: transparent;
-  color: var(--primary-color);
+  background-color: var(--primary-color);
+  color: var(--accent-color);
   border-color: var(--primary-color);
 }
 
 .btn-secondary:hover {
-  background-color: var(--primary-color);
-  color: var(--white);
-  transform: translateY(-2px);
+  transform: translateY(-4px);
 }
 
 .btn-full {
@@ -208,6 +232,10 @@ body {
   margin: 0 auto;
 }
 
+body.arabic .nav-container {
+  flex-direction: row-reverse;
+}
+
 .nav-brand {
   display: flex;
   align-items: center;
@@ -217,6 +245,10 @@ body {
   display: flex;
   align-items: center;
   gap: 1rem;
+}
+
+body.arabic .logo-container {
+  flex-direction: row-reverse;
 }
 
 .logo {
@@ -230,6 +262,13 @@ body {
   padding: 3px;
 }
 
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--radius-6);
+}
+
 .brand-name {
   font-family: var(--ff-playfair);
   font-size: 2rem;
@@ -237,9 +276,18 @@ body {
   color: var(--primary-color);
 }
 
+body.arabic .brand-name {
+  font-family: var(--ff-arabic);
+}
+
 .nav-menu {
   display: flex;
+  align-items: center;
   gap: 3rem;
+}
+
+body.arabic .nav-menu {
+  flex-direction: row-reverse;
 }
 
 .nav-link {
@@ -265,8 +313,82 @@ body {
   transition: var(--transition);
 }
 
+body.arabic .nav-link::after {
+  left: auto;
+  right: 0;
+}
+
 .nav-link:hover::after {
   width: 100%;
+}
+
+/* Language Toggle Styles */
+.language-toggle {
+  position: relative;
+  margin-left: 2rem;
+}
+
+body.arabic .language-toggle {
+  margin-left: 0;
+  margin-right: 2rem;
+}
+
+.language-switch {
+  display: none;
+}
+
+.language-label {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 60px;
+  height: 30px;
+  background-color: var(--light-gray);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: var(--transition);
+  border: 2px solid var(--primary-color);
+}
+
+.language-text {
+  position: absolute;
+  font-size: 1.2rem;
+  font-weight: var(--fw-bold);
+  transition: var(--transition);
+  z-index: 2;
+}
+
+.language-text.en {
+  left: 8px;
+  color: var(--primary-color);
+}
+
+.language-text.ar {
+  right: 8px;
+  color: var(--medium-gray);
+  font-size: 1.6rem !important;
+}
+
+.language-slider {
+  position: absolute;
+  left: 1px;
+  width: 26px;
+  height: 26px;
+  background-color: var(--primary-color);
+  border-radius: var(--radius-circle);
+  transition: var(--transition);
+}
+
+.language-switch:checked + .language-label .language-slider {
+  transform: translateX(28px);
+}
+
+.language-switch:checked + .language-label .language-text.en {
+  color: var(--medium-gray);
+}
+
+.language-switch:checked + .language-label .language-text.ar {
+  color: var(--primary-color);
 }
 
 .hamburger {
@@ -342,18 +464,33 @@ body {
 
 .hero-title {
   font-family: var(--ff-playfair);
-  font-size: clamp(3.5rem, 8vw, 6.5rem);
+  font-size: 6rem;
   font-weight: var(--fw-bold);
   line-height: 1.1;
   margin-bottom: 2rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+.hero-title span,
+.hero-subtitle {
+  text-align: center !important;
+}
+
+body.arabic .hero-title {
+  font-family: var(--ff-arabic);
+  line-height: 1.5;
+}
+
 .hero-subtitle {
   font-size: 2rem;
   line-height: 1.6;
-  margin-bottom: 3rem;
   opacity: 0.95;
+  font-weight: bold;
+  margin-bottom: 2rem;
+}
+
+body.arabic .hero-subtitle {
+  line-height: 2;
 }
 
 .hero-buttons {
@@ -361,6 +498,10 @@ body {
   gap: 2rem;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+body.arabic .hero-buttons {
+  flex-direction: row-reverse;
 }
 
 /*!----------------------------S T A T S---------------------------------*/
@@ -391,12 +532,21 @@ body {
   margin-bottom: 1rem;
 }
 
+body.arabic .stat-number {
+  font-family: var(--ff-arabic);
+}
+
 .stat-label {
   font-size: 1.6rem;
   font-weight: var(--fw-medium);
   color: var(--medium-gray);
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+
+body.arabic .stat-label {
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 /*!----------------------------A B O U T---------------------------------*/
@@ -409,6 +559,10 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 6rem;
   align-items: center;
+}
+
+body.arabic .about-content {
+  direction: rtl;
 }
 
 .about-features {
@@ -434,9 +588,17 @@ body {
   color: var(--dark-gray);
 }
 
+body.arabic .feature-content h3 {
+  font-family: var(--ff-arabic);
+}
+
 .feature-content p {
   color: var(--medium-gray);
   line-height: 1.6;
+}
+
+body.arabic .feature-content p {
+  line-height: 2;
 }
 
 .about-image {
@@ -453,6 +615,11 @@ body {
   background-color: var(--accent-color);
   border-radius: var(--radius-8);
   z-index: -1;
+}
+
+body.arabic .about-image::before {
+  left: auto;
+  right: -20px;
 }
 
 .about-image img {
@@ -500,7 +667,7 @@ body {
 .project-image img {
   width: 100%;
   height: 100%;
-  object-fit: fill;
+  object-fit: cover;
   transition: var(--transition);
 }
 
@@ -520,16 +687,28 @@ body {
   color: var(--dark-gray);
 }
 
+body.arabic .project-content h3 {
+  font-family: var(--ff-arabic);
+}
+
 .project-content p {
   color: var(--medium-gray);
   line-height: 1.6;
   margin-bottom: 2rem;
 }
 
+body.arabic .project-content p {
+  line-height: 2;
+}
+
 .project-meta {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+}
+
+body.arabic .project-meta {
+  flex-direction: row-reverse;
 }
 
 .project-type,
@@ -540,6 +719,12 @@ body {
   font-weight: var(--fw-medium);
   text-transform: uppercase;
   letter-spacing: 1px;
+}
+
+body.arabic .project-type,
+body.arabic .project-status {
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 .project-type {
@@ -562,6 +747,10 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6rem;
+}
+
+body.arabic .contact-content {
+  direction: rtl;
 }
 
 .contact-details {
@@ -587,9 +776,17 @@ body {
   color: var(--dark-gray);
 }
 
+body.arabic .contact-text h4 {
+  font-family: var(--ff-arabic);
+}
+
 .contact-text p {
   color: var(--medium-gray);
   line-height: 1.6;
+}
+
+body.arabic .contact-text p {
+  line-height: 2;
 }
 
 .contact-form-container {
@@ -607,6 +804,10 @@ body {
   text-align: center;
 }
 
+body.arabic .contact-form h3 {
+  font-family: var(--ff-arabic);
+}
+
 .form-group {
   margin-bottom: 2rem;
 }
@@ -621,6 +822,13 @@ body {
   font-size: 1.6rem;
   transition: var(--transition);
   background-color: var(--white);
+}
+
+body.arabic .form-group input,
+body.arabic .form-group select,
+body.arabic .form-group textarea {
+  text-align: right;
+  font-family: var(--ff-arabic);
 }
 
 .form-group input:focus,
@@ -650,6 +858,10 @@ body {
   margin-bottom: 4rem;
 }
 
+body.arabic .footer-content {
+  direction: rtl;
+}
+
 .footer-brand {
   display: flex;
   align-items: center;
@@ -668,12 +880,20 @@ body {
   font-size: 1.8rem;
 }
 
+body.arabic .footer-brand .brand-name {
+  font-family: var(--ff-arabic);
+}
+
 .footer-section h4 {
   font-family: var(--ff-playfair);
   font-size: 2rem;
   font-weight: var(--fw-bold);
   margin-bottom: 2rem;
   color: var(--accent-color);
+}
+
+body.arabic .footer-section h4 {
+  font-family: var(--ff-arabic);
 }
 
 .footer-section ul li {
@@ -694,14 +914,19 @@ body {
   line-height: 1.6;
 }
 
+body.arabic .footer-section p {
+  line-height: 2;
+}
+
 .footer-bottom {
   border-top: 1px solid #444;
   padding-top: 2rem;
-  text-align: center;
+  text-align: center !important;
 }
 
 .footer-bottom p {
   color: #999;
+  text-align: center !important;
 }
 
 /*!----------------------------R E S P O N S I V E---------------------------------*/
@@ -730,6 +955,10 @@ body {
     transition: var(--transition);
   }
 
+  body.arabic .nav-menu {
+    flex-direction: column;
+  }
+
   .nav-menu.active {
     transform: translateY(0);
     opacity: 1;
@@ -741,9 +970,21 @@ body {
     border-bottom: 1px solid #eee;
   }
 
+  .language-toggle {
+    margin: 2rem 0 0 0;
+  }
+
+  body.arabic .language-toggle {
+    margin: 2rem 0 0 0;
+  }
+
   .hero-buttons {
     flex-direction: column;
     align-items: center;
+  }
+
+  body.arabic .hero-buttons {
+    flex-direction: column;
   }
 
   .hero-buttons .btn {
@@ -757,6 +998,10 @@ body {
 
   .about-image {
     order: -1;
+  }
+
+  body.arabic .about-image {
+    order: 1;
   }
 
   .contact-content {
@@ -817,4 +1062,36 @@ body {
   .contact-form-container {
     padding: 2rem 1.5rem;
   }
+
+  .language-toggle {
+    margin: 1rem 0 0 0;
+  }
+}
+
+/* RTL specific adjustments */
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .hero-content,
+[dir="rtl"] .section-header {
+  text-align: center;
+}
+
+[dir="rtl"] .hero-buttons {
+  justify-content: center;
+}
+
+[dir="rtl"] .stats-grid {
+  text-align: center;
+}
+
+/* Smooth transitions for language switching */
+body,
+.nav-container,
+.hero-content,
+.about-content,
+.contact-content,
+.footer-content {
+  transition: var(--transition);
 }
