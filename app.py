@@ -19,8 +19,10 @@ app = Flask(__name__)
 # Replace the existing database configuration in app.py
 basedir = os.path.abspath(os.path.dirname(__file__))
 # Use environment variable for Render's persistent disk or fallback to local path
-DATABASE_PATH = os.getenv('DATABASE_PATH', os.path.join(basedir, 'lavender_spirit.db'))
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DATABASE_PATH}'
+# DATABASE_PATH = os.getenv('DATABASE_PATH', os.path.join(basedir, 'lavender_spirit.db'))
+# app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DATABASE_PATH}'
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
 
