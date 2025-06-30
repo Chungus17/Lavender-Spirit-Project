@@ -67,7 +67,7 @@
                   </div>
 
                   <div class="form-field">
-                    <label style="text-align: right;">العنوان:</label>
+                    <label>العنوان</label>
                     <input type="text" name="title_ar" value="{{ project.title_ar }}" required>
                   </div>
 
@@ -77,7 +77,7 @@
                   </div>
 
                   <div class="form-field">
-                    <label style="text-align: right;">نوع المشروع</label>
+                    <label>نوع المشروع</label>
                     <input type="text" name="project_type_ar" value="{{ project.project_type_ar }}" required>
                   </div>
 
@@ -91,7 +91,7 @@
                   </div>
 
                   <div class="form-field">
-                    <label style="text-align: right;">الحالة</label>
+                    <label>الحالة</label>
                     <select name="status_ar" required>
                       <option value="التخطيط" {% if project.status_ar == 'التخطيط' %}selected{% endif %}>التخطيط</option>
                       <option value="جاري التنفيز" {% if project.status_ar == 'جاري التنفيز' %}selected{% endif %}>جاري التنفيز</option>
@@ -105,7 +105,7 @@
                   </div>
 
                   <div class="form-field">
-                    <label style="text-align: right;">الوصف</label>
+                    <label>الوصف</label>
                     <textarea name="description_ar" required> {{ project.description_ar }}</textarea>
                   </div>
 
@@ -142,7 +142,7 @@
               </div>
 
               <div class="form-field">
-                <label style="text-align: right;">العنوان:</label>
+                <label>العنوان</label>
                 <input type="text" name="title_ar" required>
               </div>
 
@@ -152,7 +152,7 @@
               </div>
 
               <div class="form-field">
-                <label style="text-align: right;">نوع المشروع</label>
+                <label>نوع المشروع</label>
                 <input type="text" name="project_type_ar" required>
               </div>
 
@@ -166,7 +166,7 @@
               </div>
 
               <div class="form-field">
-                <label style="text-align: right;">الحالة</label>
+                <label>الحالة</label>
                 <select name="status_ar" required>
                   <option value="التخطيط">التخطيط</option>
                   <option value="جاري التنفيز">جاري التنفيز</option>
@@ -180,7 +180,7 @@
               </div>
 
               <div class="form-field">
-                <label style="text-align: right;">الوصف</label>
+                <label>الوصف</label>
                 <textarea name="description_ar" required></textarea>
               </div>
 
