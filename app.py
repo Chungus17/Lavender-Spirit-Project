@@ -68,78 +68,68 @@ class User(db.Model):
         return f"<User {self.username}>"
 
 
-# Initialize database
-def init_db():
-    """Initialize database with tables and sample data"""
-    try:
-        db.create_all()
-        print("Database tables created successfully!")
+with app.app_context():
+    db.create_all()
 
-        # Add default user if none exist
-        if User.query.count() == 0:
-            default_user = User(username="Admin123", role="admin")
-            default_user.set_password("1122")
-            db.session.add(default_user)
-            db.session.commit()
-            print("Default admin user created!")
+    # Add default user if none exist
+    if User.query.count() == 0:
+        default_user = User(username="Admin123", role="admin")
+        default_user.set_password("1122")
+        db.session.add(default_user)
+        db.session.commit()
 
-        # Add sample projects if none exist
-        if Project.query.count() == 0:
-            sample_projects = [
-                Project(
-                    title="Luxury Residential Complex",
-                    description="A premium 200-unit residential development featuring modern amenities and sustainable design in North Riyadh.",
-                    image_filename="https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg",
-                    project_type="Residential",
-                    status="Completed",
-                ),
-                Project(
-                    title="Commercial Office Tower",
-                    description="30-story commercial complex with state-of-the-art facilities in Riyadh's business district.",
-                    image_filename="https://images.pexels.com/photos/2219024/pexels-photo-2219024.jpeg",
-                    project_type="Commercial",
-                    status="In Progress",
-                ),
-                Project(
-                    title="Infrastructure Development",
-                    description="Major road and utility infrastructure project supporting Riyadh's urban expansion initiatives.",
-                    image_filename="https://images.pexels.com/photos/2219024/pexels-photo-2219024.jpeg",
-                    project_type="Infrastructure",
-                    status="Completed",
-                ),
-                Project(
-                    title="Industrial Facility",
-                    description="Modern manufacturing facility with specialized construction requirements and safety standards.",
-                    image_filename="https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg",
-                    project_type="Industrial",
-                    status="Completed",
-                ),
-                Project(
-                    title="Mixed-Use Development",
-                    description="Integrated residential and commercial complex with retail spaces and community facilities.",
-                    image_filename="https://images.pexels.com/photos/2219024/pexels-photo-2219024.jpeg",
-                    project_type="Mixed-Use",
-                    status="Planning",
-                ),
-                Project(
-                    title="Healthcare Center",
-                    description="Modern medical facility with advanced infrastructure and patient-centered design.",
-                    image_filename="https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg",
-                    project_type="Healthcare",
-                    status="In Progress",
-                ),
-            ]
+    # Add sample projects if none exist
+    if Project.query.count() == 0:
+        sample_projects = [
+            Project(
+                title="Luxury Residential Complex",
+                description="A premium 200-unit residential development featuring modern amenities and sustainable design in North Riyadh.",
+                image_filename="Example-5.jpeg",
+                project_type="Residential",
+                status="Completed",
+            ),
+            Project(
+                title="Commercial Office Tower",
+                description="30-story commercial complex with state-of-the-art facilities in Riyadh's business district.",
+                image_filename="Example-1.jpeg",
+                project_type="Commercial",
+                status="In Progress",
+            ),
+            Project(
+                title="Infrastructure Development",
+                description="Major road and utility infrastructure project supporting Riyadh's urban expansion initiatives.",
+                image_filename="Example-3.jpeg",
+                project_type="Infrastructure",
+                status="Completed",
+            ),
+            Project(
+                title="Industrial Facility",
+                description="Modern manufacturing facility with specialized construction requirements and safety standards.",
+                image_filename="Example-1.jpeg",
+                project_type="Industrial",
+                status="Completed",
+            ),
+            Project(
+                title="Mixed-Use Development",
+                description="Integrated residential and commercial complex with retail spaces and community facilities.",
+                image_filename="Example-3.jpeg",
+                project_type="Mixed-Use",
+                status="Planning",
+            ),
+            Project(
+                title="Healthcare Center",
+                description="Modern medical facility with advanced infrastructure and patient-centered design.",
+                image_filename="Example-5.jpeg",
+                project_type="Healthcare",
+                status="In Progress",
+            ),
+        ]
 
-            for project in sample_projects:
-                db.session.add(project)
+        for project in sample_projects:
+            db.session.add(project)
 
-            db.session.commit()
-            print("Sample projects added to database!")
-
-    except Exception as e:
-        print(f"Database initialization error: {e}")
-        db.session.rollback()
-
+        db.session.commit()
+        print("Sample projects added to database!")
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
@@ -379,5 +369,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(debug=False, host="0.0.0.0", port=port)
+    app.run(debug=False, host="0.0.0.0", port=5000)
