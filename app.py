@@ -17,20 +17,25 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 
 # Database configuration for Render
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-if app.config['SQLALCHEMY_DATABASE_URI'] and app.config['SQLALCHEMY_DATABASE_URI'].startswith('postgres://'):
-    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace('postgres://', 'postgresql://', 1)
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+if app.config["SQLALCHEMY_DATABASE_URI"] and app.config[
+    "SQLALCHEMY_DATABASE_URI"
+].startswith("postgres://"):
+    app.config["SQLALCHEMY_DATABASE_URI"] = app.config[
+        "SQLALCHEMY_DATABASE_URI"
+    ].replace("postgres://", "postgresql://", 1)
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "your-secret-key-here")
 
 db = SQLAlchemy(app)
 
 # Upload folder configuration
 basedir = os.path.abspath(os.path.dirname(__file__))
-UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', os.path.join(basedir, 'static', 'uploads'))
+UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER", os.path.join(basedir, "static", "uploads"))
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
 
 # Database Models
 class Project(db.Model):
@@ -44,6 +49,7 @@ class Project(db.Model):
 
     def __repr__(self):
         return f"<Project {self.title}>"
+
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -60,6 +66,7 @@ class User(db.Model):
 
     def __repr__(self):
         return f"<User {self.username}>"
+
 
 # Initialize database
 def init_db():
@@ -128,21 +135,25 @@ def init_db():
 
             db.session.commit()
             print("Sample projects added to database!")
-            
+
     except Exception as e:
         print(f"Database initialization error: {e}")
         db.session.rollback()
 
+
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
+
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 # Routes
 @app.route("/")
 def index():
     projects = Project.query.order_by(Project.created_at.desc()).all()
     return render_template("index.html", projects=projects)
+
 
 @app.route("/api/projects")
 def get_projects():
@@ -161,6 +172,7 @@ def get_projects():
             }
         )
     return jsonify(projects_data)
+
 
 @app.route("/contact", methods=["POST"])
 def contact():
@@ -194,6 +206,7 @@ def contact():
             else:
                 return redirect(url_for("index"))
 
+
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     if not session.get("admin_logged_in"):
@@ -219,7 +232,9 @@ def admin():
                 image_filename = filename
             else:
                 # Use a default image URL if no file provided
-                image_filename = "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg"
+                image_filename = (
+                    "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg"
+                )
 
             new_project = Project(
                 title=title,
@@ -259,6 +274,7 @@ def admin():
         current_user=current_user,
     )
 
+
 @app.route("/add_user", methods=["POST"])
 def add_user():
     if not session.get("admin_logged_in"):
@@ -293,6 +309,7 @@ def add_user():
 
     flash("User added successfully!", "success")
     return redirect(url_for("admin"))
+
 
 @app.route("/edit_user", methods=["POST"])
 def edit_user():
@@ -335,6 +352,7 @@ def edit_user():
     flash("User updated successfully!", "success")
     return redirect(url_for("admin"))
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -352,11 +370,13 @@ def login():
 
     return render_template("login.html")
 
+
 @app.route("/logout")
 def logout():
     session.pop("admin_logged_in", None)
     session.pop("username", None)
     return redirect(url_for("login"))
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
