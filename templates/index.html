@@ -216,9 +216,64 @@
           </p>
         </div>
 
+        <!-- Category Filter Dropdown -->
+        <div class="category-filter">
+          <div class="filter-header">
+            <span class="filter-icon">🔍</span>
+            <h3 data-translate="filterByCategory">Filter by Category</h3>
+          </div>
+          <div class="filter-dropdown-container">
+            <div class="filter-dropdown">
+              <select
+                id="category-dropdown"
+                class="category-select"
+                onchange="filterByCategory(this.value)"
+              >
+                <!-- Options will be dynamically loaded here -->
+              </select>
+              <div class="dropdown-arrow">
+                <svg
+                  width="12"
+                  height="8"
+                  viewBox="0 0 12 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M1 1.5L6 6.5L11 1.5"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading indicator -->
+        <div
+          class="loading-indicator"
+          id="loading-indicator"
+          style="display: none"
+        >
+          <div class="loading-spinner"></div>
+          <p data-translate="loadingProjects">Loading projects...</p>
+        </div>
+
         <!-- Projects will be dynamically loaded here by JavaScript -->
-        <div class="projects-grid">
+        <div class="projects-grid" id="projects-grid">
           <!-- Dynamic projects from database will be inserted here -->
+        </div>
+
+        <!-- No projects message -->
+        <div class="no-projects" id="no-projects" style="display: none">
+          <div class="no-projects-icon">📋</div>
+          <h3 data-translate="noProjectsTitle">No Projects Found</h3>
+          <p data-translate="noProjectsMessage">
+            No projects match the selected category.
+          </p>
         </div>
       </div>
     </section>

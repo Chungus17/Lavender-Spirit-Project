@@ -16,6 +16,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 # Database configuration for Render
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
 if app.config["SQLALCHEMY_DATABASE_URI"] and app.config[
@@ -25,19 +27,34 @@ if app.config["SQLALCHEMY_DATABASE_URI"] and app.config[
         "SQLALCHEMY_DATABASE_URI"
     ].replace("postgres://", "postgresql://", 1)
 
+# DATABASE_PATH = os.getenv("DATABASE_PATH", os.path.join(basedir, "lavender_spirit.db"))
+# app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DATABASE_PATH}"
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "your-secret-key-here")
 
 db = SQLAlchemy(app)
 
 # Upload folder configuration
-basedir = os.path.abspath(os.path.dirname(__file__))
 UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER", os.path.join(basedir, "static", "uploads"))
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 
 # Database Models
+class Category(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    name_ar = db.Column(db.String(100), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Relationship with projects
+    projects = db.relationship("Project", backref="category", lazy=True)
+
+    def __repr__(self):
+        return f"<Category {self.name}>"
+
+
 class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
@@ -50,6 +67,9 @@ class Project(db.Model):
     status = db.Column(db.String(50), nullable=False)
     status_ar = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Foreign key to category
+    category_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=True)
 
     def __repr__(self):
         return f"<Project {self.title}>"
@@ -82,8 +102,33 @@ with app.app_context():
         db.session.add(default_user)
         db.session.commit()
 
+    # Add sample categories if none exist
+    if Category.query.count() == 0:
+        sample_categories = [
+            Category(name="Residential", name_ar="سكني"),
+            Category(name="Commercial", name_ar="تجاري"),
+            Category(name="Infrastructure", name_ar="بنية تحتية"),
+            Category(name="Industrial", name_ar="صناعي"),
+            Category(name="Mixed-Use", name_ar="متعدد الاستخدامات"),
+            Category(name="Healthcare", name_ar="رعاية صحية"),
+        ]
+
+        for category in sample_categories:
+            db.session.add(category)
+
+        db.session.commit()
+        print("Sample categories added to database!")
+
     # Add sample projects if none exist
     if Project.query.count() == 0:
+        # Get categories for assignment
+        residential_cat = Category.query.filter_by(name="Residential").first()
+        commercial_cat = Category.query.filter_by(name="Commercial").first()
+        infrastructure_cat = Category.query.filter_by(name="Infrastructure").first()
+        industrial_cat = Category.query.filter_by(name="Industrial").first()
+        mixed_use_cat = Category.query.filter_by(name="Mixed-Use").first()
+        healthcare_cat = Category.query.filter_by(name="Healthcare").first()
+
         sample_projects = [
             Project(
                 title="Luxury Residential Complex",
@@ -95,6 +140,7 @@ with app.app_context():
                 project_type_ar="سكني",
                 status="Completed",
                 status_ar="مكتمل",
+                category_id=residential_cat.id if residential_cat else None,
             ),
             Project(
                 title="Commercial Office Tower",
@@ -106,6 +152,7 @@ with app.app_context():
                 project_type_ar="تجاري",
                 status="In Progress",
                 status_ar="قيد التنفيذ",
+                category_id=residential_cat.id if residential_cat else None,
             ),
             Project(
                 title="Infrastructure Development",
@@ -117,6 +164,7 @@ with app.app_context():
                 project_type_ar="بنية تحتية",
                 status="Completed",
                 status_ar="مكتمل",
+                category_id=infrastructure_cat.id if infrastructure_cat else None,
             ),
             Project(
                 title="Industrial Facility",
@@ -128,6 +176,7 @@ with app.app_context():
                 project_type_ar="صناعي",
                 status="Completed",
                 status_ar="مكتمل",
+                category_id=industrial_cat.id if industrial_cat else None,
             ),
             Project(
                 title="Mixed-Use Development",
@@ -139,6 +188,7 @@ with app.app_context():
                 project_type_ar="متعدد الاستخدامات",
                 status="Planning",
                 status_ar="تخطيط",
+                category_id=mixed_use_cat.id if mixed_use_cat else None,
             ),
             Project(
                 title="Healthcare Center",
@@ -150,6 +200,7 @@ with app.app_context():
                 project_type_ar="رعاية صحية",
                 status="In Progress",
                 status_ar="قيد التنفيذ",
+                category_id=healthcare_cat.id if healthcare_cat else None,
             ),
         ]
 
@@ -170,30 +221,64 @@ def allowed_file(filename):
 @app.route("/")
 def index():
     projects = Project.query.order_by(Project.created_at.desc()).all()
-    return render_template("index.html", projects=projects)
+    categories = Category.query.order_by(Category.name).all()
+    return render_template("index.html", projects=projects, categories=categories)
 
 
 @app.route("/api/projects")
 def get_projects():
-    projects = Project.query.all()
+    category_id = request.args.get("category_id")
+
+    if category_id and category_id != "all":
+        projects = Project.query.filter_by(category_id=category_id).all()
+    else:
+        projects = Project.query.all()
+
     projects_data = []
     for project in projects:
-        projects_data.append(
+        project_data = {
+            "id": project.id,
+            "title": project.title,
+            "title_ar": project.title_ar,
+            "description": project.description,
+            "description_ar": project.description_ar,
+            "image_filename": project.image_filename,
+            "project_type": project.project_type,
+            "project_type_ar": project.project_type_ar,
+            "status": project.status,
+            "status_ar": project.status_ar,
+            "created_at": project.created_at.isoformat(),
+            "category_id": project.category_id,
+        }
+
+        if project.category:
+            project_data["category"] = {
+                "id": project.category.id,
+                "name": project.category.name,
+                "name_ar": project.category.name_ar,
+            }
+        else:
+            project_data["category"] = None
+
+        projects_data.append(project_data)
+
+    return jsonify(projects_data)
+
+
+@app.route("/api/categories")
+def get_categories():
+    categories = Category.query.order_by(Category.name).all()
+    categories_data = []
+    for category in categories:
+        categories_data.append(
             {
-                "id": project.id,
-                "title": project.title,
-                "title_ar": project.title_ar,
-                "description": project.description,
-                "description_ar": project.description_ar,
-                "image_filename": project.image_filename,
-                "project_type": project.project_type,
-                "project_type_ar": project.project_type_ar,
-                "status": project.status,
-                "status_ar": project.status_ar,
-                "created_at": project.created_at.isoformat(),
+                "id": category.id,
+                "name": category.name,
+                "name_ar": category.name_ar,
+                "project_count": len(category.projects),
             }
         )
-    return jsonify(projects_data)
+    return jsonify(categories_data)
 
 
 @app.route("/contact", methods=["POST"])
@@ -236,6 +321,7 @@ def admin():
 
     message = None
     current_user = User.query.filter_by(username=session.get("username")).first()
+    tab = None
 
     if request.method == "POST":
         form_type = request.form.get("form_type")
@@ -249,7 +335,9 @@ def admin():
             project_type_ar = request.form.get("project_type_ar")
             status = request.form.get("status")
             status_ar = request.form.get("status_ar")
+            category_id = request.form.get("category_id")
             file = request.files.get("image_file")
+            tab = "project"
 
             image_filename = None
             if file and allowed_file(file.filename):
@@ -272,6 +360,7 @@ def admin():
                 project_type_ar=project_type_ar,
                 status=status,
                 status_ar=status_ar,
+                category_id=category_id if category_id else None,
             )
             db.session.add(new_project)
             db.session.commit()
@@ -288,6 +377,9 @@ def admin():
             project.project_type_ar = request.form.get("project_type_ar")
             project.status = request.form.get("status")
             project.status_ar = request.form.get("status_ar")
+            category_id = request.form.get("category_id")
+            project.category_id = category_id if category_id else None
+            tab = "project"
 
             file = request.files.get("image_file")
             if file and allowed_file(file.filename):
@@ -298,14 +390,45 @@ def admin():
             db.session.commit()
             message = "Project updated successfully!"
 
+        elif form_type == "add_category":
+            name = request.form.get("name")
+            name_ar = request.form.get("name_ar")
+
+            tab = "category"
+
+            new_category = Category(
+                name=name,
+                name_ar= name_ar,
+                created_at=datetime.utcnow()
+            )
+
+            db.session.add(new_category)
+            db.session.commit()
+            message = "Category added successfully!"
+
+        elif form_type == "edit_category":
+            category_id = request.form.get("category_id")
+            category = Category.query.get_or_404(category_id)
+            category.name = request.form.get("name")
+            category.name_ar = request.form.get("name_ar")
+
+            tab = "category"
+
+            db.session.commit()
+            message = "Category updated successfully!"
+
+
     projects = Project.query.order_by(Project.created_at.desc()).all()
     users = User.query.order_by(User.created_at.desc()).all()
+    categories = Category.query.order_by(Category.name).all()
     return render_template(
         "admin.html",
         message=message,
         projects=projects,
         users=users,
+        categories=categories,
         current_user=current_user,
+        tab=tab
     )
 
 
@@ -413,4 +536,4 @@ def logout():
 
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000)

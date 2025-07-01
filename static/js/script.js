@@ -1,349 +1,12 @@
-// Global variables for projects data
-let projectsData = [];
+// Global variables
+let allProjects = [];
+let allUnfilteredProjects = [];
+let allCategories = [];
+let currentLanguage = "en";
+let selectedCategoryId = "all";
+let total_projects = 0;
 
-// Navigation functionality
-document.addEventListener("DOMContentLoaded", function () {
-  const hamburger = document.getElementById("hamburger");
-  const navMenu = document.getElementById("nav-menu");
-  const navLinks = document.querySelectorAll(".nav-link");
-  const navbar = document.getElementById("navbar");
-
-  // Fetch projects data on page load
-  fetchProjects();
-
-  // Toggle mobile menu
-  hamburger.addEventListener("click", function () {
-    hamburger.classList.toggle("active");
-    navMenu.classList.toggle("active");
-  });
-
-  // Close mobile menu when clicking on nav links
-  navLinks.forEach((link) => {
-    link.addEventListener("click", function () {
-      hamburger.classList.remove("active");
-      navMenu.classList.remove("active");
-    });
-  });
-
-  // Navbar scroll effect
-  window.addEventListener("scroll", function () {
-    if (window.scrollY > 100) {
-      navbar.classList.add("scrolled");
-    } else {
-      navbar.classList.remove("scrolled");
-    }
-  });
-
-  // Smooth scrolling for navigation links
-  navLinks.forEach((link) => {
-    link.addEventListener("click", function (e) {
-      e.preventDefault();
-      const targetId = this.getAttribute("href");
-      const targetSection = document.querySelector(targetId);
-
-      if (targetSection) {
-        const offsetTop = targetSection.offsetTop - 80;
-        window.scrollTo({
-          top: offsetTop,
-          behavior: "smooth",
-        });
-      }
-    });
-  });
-
-  // Stats counter animation
-  function animateCounter(element) {
-    const target = parseInt(element.getAttribute("data-target"));
-    const increment = target / 100;
-    let current = 0;
-
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= target) {
-        current = target;
-        clearInterval(timer);
-      }
-      element.textContent = Math.floor(current) + "+";
-    }, 20);
-  }
-
-  // Intersection Observer for stats animation
-  const statsObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const statNumbers = entry.target.querySelectorAll(".stat-number");
-          statNumbers.forEach((statNumber) => {
-            if (!statNumber.classList.contains("animated")) {
-              statNumber.classList.add("animated");
-              animateCounter(statNumber);
-            }
-          });
-        }
-      });
-    },
-    { threshold: 0.5 }
-  );
-
-  const statsSection = document.querySelector(".stats");
-  if (statsSection) {
-    statsObserver.observe(statsSection);
-  }
-
-  // Contact form handling
-  const contactForm = document.getElementById("contact-form");
-  if (contactForm) {
-    contactForm.addEventListener("submit", function (e) {
-      e.preventDefault();
-
-      // Get form data
-      const formData = new FormData(this);
-      const data = Object.fromEntries(formData);
-
-      // Simple form validation
-      if (!data.name || !data.email || !data.message || !data.service) {
-        alert("Please fill in all required fields.");
-        return;
-      }
-
-      // Email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(data.email)) {
-        alert("Please enter a valid email address.");
-        return;
-      }
-
-      // Simulate form submission
-      const submitBtn = this.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
-      submitBtn.textContent = "Sending...";
-      submitBtn.disabled = true;
-
-      setTimeout(() => {
-        alert("Thank you for your message! We will get back to you soon.");
-        this.reset();
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-      }, 2000);
-    });
-  }
-
-  // Parallax effect for hero section
-  window.addEventListener("scroll", function () {
-    const heroBackground = document.querySelector(".hero-bg-image");
-    if (heroBackground) {
-      const scrolled = window.pageYOffset;
-      const parallax = scrolled * 0.5;
-      heroBackground.style.transform = `translateY(${parallax}px)`;
-    }
-  });
-
-  // Add animation on scroll for project cards
-  const projectCards = document.querySelectorAll(".project-card");
-  const projectObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.style.opacity = "1";
-            entry.target.style.transform = "translateY(0)";
-          }, index * 100);
-        }
-      });
-    },
-    { threshold: 0.1 }
-  );
-
-  projectCards.forEach((card) => {
-    card.style.opacity = "0";
-    card.style.transform = "translateY(30px)";
-    card.style.transition = "opacity 0.6s ease, transform 0.6s ease";
-    projectObserver.observe(card);
-  });
-
-  // Add animation for feature items
-  const featureItems = document.querySelectorAll(".feature-item");
-  const featureObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.style.opacity = "1";
-            entry.target.style.transform = "translateX(0)";
-          }, index * 200);
-        }
-      });
-    },
-    { threshold: 0.1 }
-  );
-
-  featureItems.forEach((item) => {
-    item.style.opacity = "0";
-    item.style.transform = "translateX(-30px)";
-    item.style.transition = "opacity 0.6s ease, transform 0.6s ease";
-    featureObserver.observe(item);
-  });
-});
-
-// Function to fetch projects from API
-async function fetchProjects() {
-  try {
-    const response = await fetch("/api/projects");
-    if (response.ok) {
-      projectsData = await response.json();
-      renderProjects();
-    } else {
-      console.error("Failed to fetch projects");
-    }
-  } catch (error) {
-    console.error("Error fetching projects:", error);
-  }
-}
-
-// Function to render projects based on current language
-function renderProjects() {
-  const projectsGrid = document.querySelector(".projects-grid");
-  if (!projectsGrid || !projectsData.length) return;
-
-  // Clear existing dynamic projects (keep static ones if any)
-  const dynamicProjects = projectsGrid.querySelectorAll(
-    '.project-card[data-dynamic="true"]'
-  );
-  dynamicProjects.forEach((card) => card.remove());
-
-  // Render projects from database
-  projectsData.forEach((project) => {
-    const projectCard = createProjectCard(project);
-    projectsGrid.appendChild(projectCard);
-  });
-
-  // Re-apply animations to new cards
-  const newProjectCards = projectsGrid.querySelectorAll(
-    '.project-card[data-dynamic="true"]'
-  );
-  const projectObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.style.opacity = "1";
-            entry.target.style.transform = "translateY(0)";
-          }, index * 100);
-        }
-      });
-    },
-    { threshold: 0.1 }
-  );
-
-  newProjectCards.forEach((card) => {
-    card.style.opacity = "0";
-    card.style.transform = "translateY(30px)";
-    card.style.transition = "opacity 0.6s ease, transform 0.6s ease";
-    projectObserver.observe(card);
-  });
-}
-
-// Function to create project card HTML
-function createProjectCard(project) {
-  const projectCard = document.createElement("div");
-  projectCard.className = "project-card";
-  projectCard.setAttribute("data-dynamic", "true");
-  projectCard.setAttribute("data-project-id", project.id);
-
-  // Determine image source
-  let imageSrc;
-  if (project.image_filename.startsWith("http")) {
-    imageSrc = project.image_filename;
-  } else {
-    imageSrc = `/static/uploads/${project.image_filename}`;
-  }
-
-  projectCard.innerHTML = `
-    <div class="project-image">
-      <img src="${imageSrc}" alt="${project.title}" />
-    </div>
-    <div class="project-content">
-      <h3 class="project-title" data-en="${project.title}" data-ar="${project.title_ar}">${project.title}</h3>
-      <p class="project-description" data-en="${project.description}" data-ar="${project.description_ar}">${project.description}</p>
-      <div class="project-meta">
-        <span class="project-type" data-en="${project.project_type}" data-ar="${project.project_type_ar}">${project.project_type}</span>
-        <span class="project-status" data-en="${project.status}" data-ar="${project.status_ar}">${project.status}</span>
-      </div>
-    </div>
-  `;
-
-  return projectCard;
-}
-
-// Function to update project content based on language
-function updateProjectsLanguage(language) {
-  const projectCards = document.querySelectorAll(
-    '.project-card[data-dynamic="true"]'
-  );
-
-  projectCards.forEach((card) => {
-    const title = card.querySelector(".project-title");
-    const description = card.querySelector(".project-description");
-    const type = card.querySelector(".project-type");
-    const status = card.querySelector(".project-status");
-
-    if (title) {
-      title.textContent = title.getAttribute(`data-${language}`);
-    }
-    if (description) {
-      description.textContent = description.getAttribute(`data-${language}`);
-    }
-    if (type) {
-      type.textContent = type.getAttribute(`data-${language}`);
-    }
-    if (status) {
-      status.textContent = status.getAttribute(`data-${language}`);
-    }
-  });
-}
-
-// Function to scroll to specific section (used by CTA buttons)
-function scrollToSection(sectionId) {
-  const targetSection = document.getElementById(sectionId);
-  if (targetSection) {
-    const offsetTop = targetSection.offsetTop - 80;
-    window.scrollTo({
-      top: offsetTop,
-      behavior: "smooth",
-    });
-  }
-}
-
-// Add loading animation
-window.addEventListener("load", function () {
-  document.body.classList.add("loaded");
-
-  // Animate hero content on load
-  const heroContent = document.querySelector(".hero-content");
-  if (heroContent) {
-    heroContent.style.opacity = "0";
-    heroContent.style.transform = "translateY(30px)";
-
-    setTimeout(() => {
-      heroContent.style.transition = "opacity 1s ease, transform 1s ease";
-      heroContent.style.opacity = "1";
-      heroContent.style.transform = "translateY(0)";
-    }, 500);
-  }
-});
-
-// Handle window resize for mobile menu
-window.addEventListener("resize", function () {
-  const hamburger = document.getElementById("hamburger");
-  const navMenu = document.getElementById("nav-menu");
-
-  if (window.innerWidth > 968) {
-    hamburger.classList.remove("active");
-    navMenu.classList.remove("active");
-  }
-});
-
-// Language translations
+// Translation object
 const translations = {
   en: {
     brandName: "Lavender Spirit",
@@ -377,6 +40,11 @@ const translations = {
     projectsTitle: "Our Featured Projects",
     projectsSubtitle:
       "Showcasing our commitment to excellence through diverse construction and contracting projects across Riyadh",
+    filterByCategory: "Filter by Category",
+    allProjects: "All Projects",
+    loadingProjects: "Loading projects...",
+    noProjectsTitle: "No Projects Found",
+    noProjectsMessage: "No projects match the selected category.",
     contactTitle: "Get In Touch",
     contactSubtitle:
       "Ready to start your construction project? Contact us today for a consultation and personalized quote.",
@@ -399,8 +67,6 @@ const translations = {
     consultationService: "Consultation",
     messagePlaceholder: "Tell us about your project",
     sendMessage: "Send Message",
-    footerDesc:
-      "Building excellence in construction and contracting across Riyadh with a commitment to quality, innovation, and client satisfaction.",
     servicesHeader: "Services",
     residentialConstruction: "Residential Construction",
     commercialBuildings: "Commercial Buildings",
@@ -413,44 +79,51 @@ const translations = {
     contactInfo: "Contact Info",
     footerAddress1: "King Fahd Road, Al Olaya",
     footerAddress2: "Riyadh, Saudi Arabia",
+    footerDesc:
+      "Building excellence in construction and contracting across Riyadh with a commitment to quality, innovation, and client satisfaction.",
     copyright:
       "© 2024 Lavender Spirit Construction & Contracting. All rights reserved.",
   },
   ar: {
-    brandName: "لافيندر سبيريت",
+    brandName: "روح الخزامى",
     navHome: "الرئيسية",
     navAbout: "من نحن",
     navProjects: "المشاريع",
-    navContact: "تواصل معنا",
+    navContact: "اتصل بنا",
     heroTitle1: "بناء التميز في",
     heroTitle2: "الرياض",
     heroSubtitle:
-      "خدمات البناء والمقاولات الممتازة التي تحقق مشاريع عالية الجودة في جميع أنحاء المملكة العربية السعودية بدقة وابتكار وثقة.",
+      "خدمات البناء والمقاولات الرائدة التي تقدم مشاريع عالية الجودة في جميع أنحاء المملكة العربية السعودية بدقة وابتكار وثقة.",
     getQuote: "احصل على عرض سعر",
     viewProjects: "عرض المشاريع",
     projectsCompleted: "مشروع مكتمل",
-    happyClients: "عميل راضٍ",
+    happyClients: "عميل سعيد",
     yearsExperience: "سنة خبرة",
-    expertTeam: "خبير في الفريق",
+    expertTeam: "فريق خبير",
     aboutTitle: "تحويل الأحلام إلى واقع",
     aboutSubtitle:
-      "مع أكثر من 15 عامًا من التميز في البناء والمقاولات، أثبتت روح اللافندر نفسها كشريك موثوق في الرياض للحلول الإنشائية المتميزة.",
+      "مع أكثر من 15 عامًا من التميز في البناء والمقاولات، رسخت روح الخزامى نفسها كشريك موثوق في الرياض لحلول البناء المتميزة.",
     feature1Title: "حرفية خبيرة",
     feature1Desc:
       "يقدم محترفونا المهرة جودة استثنائية في كل مشروع، من التطوير السكني إلى التجاري.",
-    feature2Title: "التسليم في الموعد",
+    feature2Title: "التسليم في الوقت المحدد",
     feature2Desc:
       "نفخر بإنجاز المشاريع في الموعد المحدد دون التنازل عن معايير الجودة أو السلامة.",
     feature3Title: "التركيز على الابتكار",
     feature3Desc:
-      "استخدام أحدث التقنيات وتقنيات البناء الحديثة لتجاوز توقعات العملاء.",
+      "استخدام التكنولوجيا المتطورة وتقنيات البناء الحديثة لتجاوز توقعات العملاء.",
     startProject: "ابدأ مشروعك",
     projectsTitle: "مشاريعنا المميزة",
     projectsSubtitle:
       "عرض التزامنا بالتميز من خلال مشاريع البناء والمقاولات المتنوعة في جميع أنحاء الرياض",
+    filterByCategory: "تصفية حسب الفئة",
+    allProjects: "جميع المشاريع",
+    loadingProjects: "جاري تحميل المشاريع...",
+    noProjectsTitle: "لم يتم العثور على مشاريع",
+    noProjectsMessage: "لا توجد مشاريع تطابق الفئة المحددة.",
     contactTitle: "تواصل معنا",
     contactSubtitle:
-      "هل أنت مستعد لبدء مشروع البناء الخاص بك؟ اتصل بنا اليوم للحصول على استشارة وعرض أسعار شخصي.",
+      "هل أنت مستعد لبدء مشروع البناء الخاص بك؟ اتصل بنا اليوم للحصول على استشارة وعرض أسعار مخصص.",
     locationLabel: "الموقع",
     locationText: "طريق الملك فهد، حي العليا\nالرياض، المملكة العربية السعودية",
     phoneLabel: "الهاتف",
@@ -460,17 +133,15 @@ const translations = {
     formTitle: "أرسل لنا رسالة",
     namePlaceholder: "اسمك",
     emailPlaceholder: "بريدك الإلكتروني",
-    phonePlaceholder: "رقم هاتفك",
+    phonePlaceholder: "هاتفك",
     selectService: "اختر الخدمة",
     residentialService: "البناء السكني",
     commercialService: "البناء التجاري",
     infrastructureService: "تطوير البنية التحتية",
-    renovationService: "التجديد وإعادة التشكيل",
-    consultationService: "استشارة",
+    renovationService: "التجديد والإصلاح",
+    consultationService: "الاستشارة",
     messagePlaceholder: "أخبرنا عن مشروعك",
     sendMessage: "إرسال الرسالة",
-    footerDesc:
-      "بناء التميز في البناء والمقاولات في جميع أنحاء الرياض مع الالتزام بالجودة والابتكار ورضا العملاء.",
     servicesHeader: "الخدمات",
     residentialConstruction: "البناء السكني",
     commercialBuildings: "المباني التجارية",
@@ -479,92 +150,369 @@ const translations = {
     companyHeader: "الشركة",
     aboutUs: "من نحن",
     ourProjects: "مشاريعنا",
-    contact: "تواصل معنا",
+    contact: "اتصل بنا",
     contactInfo: "معلومات الاتصال",
     footerAddress1: "طريق الملك فهد، العليا",
     footerAddress2: "الرياض، المملكة العربية السعودية",
-    copyright: "© 2024 روح اللافندر للبناء والمقاولات. جميع الحقوق محفوظة.",
+    footerDesc:
+      "بناء التميز في البناء والمقاولات في جميع أنحاء الرياض مع الالتزام بالجودة والابتكار ورضا العملاء.",
+    copyright: "© 2024 روح الخزامى للبناء والمقاولات. جميع الحقوق محفوظة.",
   },
 };
 
-// Language management
-let currentLanguage = localStorage.getItem("language") || "en";
-const htmlRoot = document.getElementById("html-root");
-const languageSwitch = document.getElementById("language-switch");
-
-// Initialize language on page load
+// DOM Content Loaded
 document.addEventListener("DOMContentLoaded", function () {
-  setLanguage(currentLanguage);
-  if (languageSwitch) {
-    languageSwitch.checked = currentLanguage === "ar";
-
-    // Add event listener for language toggle
-    languageSwitch.addEventListener("change", function () {
-      const newLanguage = this.checked ? "ar" : "en";
-      setLanguage(newLanguage);
-    });
-  }
+  initializeApp();
+  setupEventListeners();
+  loadProjects();
+  loadCategories();
+  animateStats();
 });
 
-function setLanguage(language) {
-  currentLanguage = language;
-  localStorage.setItem("language", language);
+// Initialize the application
+function initializeApp() {
+  // Set initial language
+  updateLanguage();
 
-  // Update HTML attributes
-  if (htmlRoot) {
-    htmlRoot.setAttribute("lang", language);
-    htmlRoot.setAttribute("dir", language === "ar" ? "rtl" : "ltr");
+  // Setup navbar scroll effect
+  setupNavbarScroll();
+}
+
+// Setup event listeners
+function setupEventListeners() {
+  // Language toggle
+  const languageSwitch = document.getElementById("language-switch");
+  if (languageSwitch) {
+    languageSwitch.addEventListener("change", toggleLanguage);
   }
 
-  // Add/remove Arabic class for styling
-  if (language === "ar") {
-    document.body.classList.add("arabic");
-  } else {
-    document.body.classList.remove("arabic");
+  // Mobile menu toggle
+  const hamburger = document.getElementById("hamburger");
+  const navMenu = document.getElementById("nav-menu");
+
+  if (hamburger && navMenu) {
+    hamburger.addEventListener("click", function () {
+      hamburger.classList.toggle("active");
+      navMenu.classList.toggle("active");
+    });
   }
+
+  // Contact form submission
+  const contactForm = document.getElementById("contact-form");
+  if (contactForm) {
+    contactForm.addEventListener("submit", handleContactForm);
+  }
+
+  // Category filter dropdown
+  const categoryFilter = document.getElementById("category-filter");
+  if (categoryFilter) {
+    categoryFilter.addEventListener("change", function () {
+      filterByCategory(this.value);
+    });
+  }
+}
+
+// Load categories from API
+async function loadCategories() {
+  try {
+    const response = await fetch("/api/categories");
+    const categories = await response.json();
+    allCategories = categories;
+    renderCategoryFilters();
+  } catch (error) {
+    console.error("Error loading categories:", error);
+  }
+}
+
+// Load projects from API
+async function loadProjects(categoryId = "all") {
+  const loadingIndicator = document.getElementById("loading-indicator");
+  const projectsGrid = document.getElementById("projects-grid");
+  const noProjectsDiv = document.getElementById("no-projects");
+
+  // Show loading
+  if (loadingIndicator) loadingIndicator.style.display = "block";
+  if (projectsGrid) projectsGrid.style.display = "none";
+  if (noProjectsDiv) noProjectsDiv.style.display = "none";
+
+  try {
+    const url =
+      categoryId === "all"
+        ? "/api/projects"
+        : `/api/projects?category_id=${categoryId}`;
+
+    const fetchProjects = fetch(url).then((res) => res.json());
+
+    const [projects] = await Promise.all([fetchProjects]); // Wait for both
+
+    allProjects = projects;
+    total_projects = allProjects.length;
+    renderProjects(projects);
+
+    if (projects.length === 0) {
+      if (noProjectsDiv) noProjectsDiv.style.display = "block";
+    } else {
+      if (projectsGrid) projectsGrid.style.display = "grid";
+    }
+  } catch (error) {
+    console.error("Error loading projects:", error);
+    if (noProjectsDiv) noProjectsDiv.style.display = "block";
+  } finally {
+    if (loadingIndicator) loadingIndicator.style.display = "none";
+  }
+}
+
+// Render category filter dropdown
+function renderCategoryFilters() {
+  const categoryFilter = document.getElementById("category-dropdown");
+  if (!categoryFilter) return;
+
+  let optionsHTML = `
+  <option value="all" ${selectedCategoryId === "all" ? "selected" : ""}>
+    ${translations[currentLanguage].allProjects} (${allProjects.length})
+  </option>
+`;
+
+  allCategories.forEach((category) => {
+    const categoryName =
+      currentLanguage === "ar" ? category.name_ar : category.name;
+    optionsHTML += `
+      <option value="${category.id}" ${
+      selectedCategoryId === category.id.toString() ? "selected" : ""
+    }>
+        ${categoryName} (${category.project_count})
+      </option>
+    `;
+  });
+
+  categoryFilter.innerHTML = optionsHTML;
+}
+
+let debounceTimeout;
+function filterByCategory(categoryId) {
+  clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    selectedCategoryId = categoryId;
+    const categoryFilter = document.getElementById("category-filter");
+    if (categoryFilter) {
+      categoryFilter.value = categoryId;
+    }
+    loadProjects(categoryId);
+  }, 300);
+}
+
+// Render projects grid
+function renderProjects(projects) {
+  const projectsGrid = document.getElementById("projects-grid");
+  if (!projectsGrid) return;
+
+  let projectsHTML = "";
+
+  projects.forEach((project, index) => {
+    const title = currentLanguage === "ar" ? project.title_ar : project.title;
+    const description =
+      currentLanguage === "ar" ? project.description_ar : project.description;
+    const projectType =
+      currentLanguage === "ar" ? project.project_type_ar : project.project_type;
+    const status =
+      currentLanguage === "ar" ? project.status_ar : project.status;
+
+    // Get image URL
+    let imageUrl = project.image_filename;
+    if (
+      !imageUrl ||
+      (!imageUrl.startsWith("http") && !imageUrl.startsWith("/"))
+    ) {
+      imageUrl =
+        "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
+    }
+
+    projectsHTML += `
+      <div class="project-card fade-in" style="animation-delay: ${
+        index * 0.1
+      }s">
+        <div class="project-image">
+          <img src="${imageUrl}" alt="${title}" loading="lazy">
+        </div>
+        <div class="project-content">
+          <h3>${title}</h3>
+          <p>${description}</p>
+          <div class="project-meta">
+            <span class="project-type">${projectType}</span>
+            <span class="project-status">${status}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  projectsGrid.innerHTML = projectsHTML;
+}
+
+// Toggle language
+function toggleLanguage() {
+  currentLanguage = currentLanguage === "en" ? "ar" : "en";
+  updateLanguage();
+  renderCategoryFilters();
+  renderProjects(allProjects);
+}
+
+// Update language throughout the page
+function updateLanguage() {
+  const isArabic = currentLanguage === "ar";
+
+  // Update body class and direction
+  document.body.classList.toggle("arabic", isArabic);
+  document.documentElement.setAttribute("dir", isArabic ? "rtl" : "ltr");
 
   // Update all translatable elements
-  const elements = document.querySelectorAll("[data-translate]");
-  elements.forEach((element) => {
+  const translatableElements = document.querySelectorAll("[data-translate]");
+  translatableElements.forEach((element) => {
     const key = element.getAttribute("data-translate");
-    if (translations[language] && translations[language][key]) {
-      element.textContent = translations[language][key];
+    if (translations[currentLanguage][key]) {
+      element.textContent = translations[currentLanguage][key];
     }
   });
 
-  // Update placeholders
+  // Update placeholder texts
   const placeholderElements = document.querySelectorAll(
     "[data-translate-placeholder]"
   );
   placeholderElements.forEach((element) => {
     const key = element.getAttribute("data-translate-placeholder");
-    if (translations[language] && translations[language][key]) {
-      element.setAttribute("placeholder", translations[language][key]);
+    if (translations[currentLanguage][key]) {
+      element.placeholder = translations[currentLanguage][key];
     }
   });
 
   // Update page title
   const pageTitle = document.getElementById("page-title");
   if (pageTitle) {
-    const titleKey =
-      language === "ar"
-        ? "روح اللافندر - شركة البناء والمقاولات الرائدة في الرياض"
-        : "Lavender Spirit - Premier Construction & Contracting in Riyadh";
-    pageTitle.textContent = titleKey;
+    pageTitle.textContent = isArabic
+      ? "روح الخزامى - شركة البناء والمقاولات الرائدة في الرياض"
+      : "Lavender Spirit - Premier Construction & Contracting in Riyadh";
   }
-
-  // Update projects language
-  updateProjectsLanguage(language);
 }
 
-// Smooth scroll function
+// Setup navbar scroll effect
+function setupNavbarScroll() {
+  const navbar = document.getElementById("navbar");
+  if (!navbar) return;
+
+  window.addEventListener("scroll", function () {
+    if (window.scrollY > 100) {
+      navbar.classList.add("scrolled");
+    } else {
+      navbar.classList.remove("scrolled");
+    }
+  });
+}
+
+function animateStats() {
+  const statNumbers = document.querySelectorAll(".stat-number");
+
+  const observerOptions = {
+    threshold: 0.5,
+    rootMargin: "0px 0px -100px 0px",
+  };
+
+  const observer = new IntersectionObserver(function (entries) {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const target = parseInt(entry.target.getAttribute("data-target"));
+        animateCounter(entry.target, target);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+
+  statNumbers.forEach((stat) => observer.observe(stat));
+}
+
+// Animate counter function
+function animateCounter(element, target) {
+  let current = 0;
+  const increment = target / 50;
+  const timer = setInterval(function () {
+    current += increment;
+    if (current >= target) {
+      current = target;
+      clearInterval(timer);
+    }
+    element.textContent = `${Math.floor(current)} +`;
+  }, 30);
+}
+
+// Smooth scroll to section
 function scrollToSection(sectionId) {
   const section = document.getElementById(sectionId);
   if (section) {
-    const offsetTop = section.offsetTop - 80;
+    const offsetTop = section.offsetTop - 80; // Account for fixed navbar
     window.scrollTo({
       top: offsetTop,
       behavior: "smooth",
     });
   }
+}
+
+// Handle contact form submission
+function handleContactForm(event) {
+  event.preventDefault();
+
+  const formData = new FormData(event.target);
+  const submitButton = event.target.querySelector('button[type="submit"]');
+  const originalText = submitButton.textContent;
+
+  // Show loading state
+  submitButton.textContent =
+    currentLanguage === "ar" ? "جاري الإرسال..." : "Sending...";
+  submitButton.disabled = true;
+
+  fetch("/contact", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        alert(
+          currentLanguage === "ar"
+            ? "شكرًا لك على رسالتك! سنتواصل معك قريبًا."
+            : "Thank you for your message! We will get back to you soon."
+        );
+        event.target.reset();
+      } else {
+        alert(
+          currentLanguage === "ar"
+            ? "حدث خطأ. يرجى المحاولة مرة أخرى."
+            : "An error occurred. Please try again."
+        );
+      }
+    })
+    .catch((error) => {
+      console.error("Error:", error);
+      alert(
+        currentLanguage === "ar"
+          ? "حدث خطأ. يرجى المحاولة مرة أخرى."
+          : "An error occurred. Please try again."
+      );
+    })
+    .finally(() => {
+      // Reset button state
+      submitButton.textContent = originalText;
+      submitButton.disabled = false;
+    });
+}
+
+// Utility function to get image URL
+function getImageUrl(filename) {
+  if (!filename) {
+    return "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&fit=crop";
+  }
+
+  if (filename.startsWith("http")) {
+    return filename;
+  }
+
+  return `/static/uploads/${filename}`;
 }
