@@ -20,8 +20,16 @@
             onclick="showTab('projects')"
             >Projects</a
           >
-          <a href="#users" class="tab-link {% if tab == 'user' %}active{% endif %}" onclick="showTab('users')">Users</a>
-          <a href="#categories" class="tab-link {% if tab == 'category' %}active{% endif %}" onclick="showTab('categories')"
+          <a
+            href="#users"
+            class="tab-link {% if tab == 'user' %}active{% endif %}"
+            onclick="showTab('users')"
+            >Users</a
+          >
+          <a
+            href="#categories"
+            class="tab-link {% if tab == 'category' %}active{% endif %}"
+            onclick="showTab('categories')"
             >Categories</a
           >
         </nav>
@@ -35,7 +43,10 @@
         <button class="hamburger" onclick="toggleSidebar()">☰</button>
 
         <!-- Projects Tab -->
-        <div id="projects" class="tab-content {% if tab == 'project' %}active{% endif %}">
+        <div
+          id="projects"
+          class="tab-content {% if tab == 'project' %}active{% endif %}"
+        >
           <div
             style="
               display: flex;
@@ -77,6 +88,18 @@
               >
                 Edit
               </button>
+              <form
+                action="{{ url_for('delete_entity', entity_type='project', entity_id=project.id) }}"
+                method="POST"
+                style="display: inline"
+              >
+                <button
+                  type="submit"
+                  onclick="return confirm('Are you sure you want to delete this project?')"
+                >
+                  Delete
+                </button>
+              </form>
             </div>
             {% endfor %}
           </div>
@@ -183,7 +206,10 @@
         </div>
 
         <!-- Users Tab -->
-        <div id="users" class="tab-content {% if tab == 'user' %}active{% endif %}">
+        <div
+          id="users"
+          class="tab-content {% if tab == 'user' %}active{% endif %}"
+        >
           <div
             style="
               display: flex;
@@ -229,6 +255,18 @@
                   >
                     Edit
                   </button>
+                  <form
+                    action="{{ url_for('delete_entity', entity_type='user', entity_id=user.id) }}"
+                    method="POST"
+                    style="display: inline"
+                  >
+                    <button
+                      type="submit"
+                      onclick="return confirm('Are you sure you want to delete this user?')"
+                    >
+                      Delete
+                    </button>
+                  </form>
                   {% endif %}
                 </td>
               </tr>
@@ -278,7 +316,10 @@
         </div>
 
         <!-- Categories Tab -->
-        <div id="categories" class="tab-content {% if tab == 'category' %}active{% endif %}">
+        <div
+          id="categories"
+          class="tab-content {% if tab == 'category' %}active{% endif %}"
+        >
           <div
             style="
               display: flex;
@@ -321,6 +362,18 @@
                   >
                     Edit
                   </button>
+                  <form
+                    action="{{ url_for('delete_entity', entity_type='category', entity_id=category.id) }}"
+                    method="POST"
+                    style="display: inline"
+                  >
+                    <button
+                      type="submit"
+                      onclick="return confirm('Are you sure you want to delete this category?')"
+                    >
+                      Delete
+                    </button>
+                  </form>
                 </td>
               </tr>
               {% endfor %}

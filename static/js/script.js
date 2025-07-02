@@ -82,7 +82,7 @@ const translations = {
     footerDesc:
       "Building excellence in construction and contracting across Riyadh with a commitment to quality, innovation, and client satisfaction.",
     copyright:
-      "© 2024 Lavender Spirit Construction & Contracting. All rights reserved.",
+      "© 2025 Lavender Spirit Construction & Contracting. All rights reserved.",
   },
   ar: {
     brandName: "روح الخزامى",
@@ -164,9 +164,9 @@ const translations = {
 document.addEventListener("DOMContentLoaded", function () {
   initializeApp();
   setupEventListeners();
-  loadProjects();
   loadCategories();
   animateStats();
+  initializeHeroAnimations();
 });
 
 // Initialize the application
@@ -176,6 +176,29 @@ function initializeApp() {
 
   // Setup navbar scroll effect
   setupNavbarScroll();
+}
+
+// Initialize hero animations
+function initializeHeroAnimations() {
+  // Trigger hero stats animation when in view
+  const heroStatsObserver = new IntersectionObserver(
+    function (entries) {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const statNumbers = entry.target.querySelectorAll(".stat-number");
+          statNumbers.forEach((stat) => {
+            const target = parseInt(stat.getAttribute("data-target"));
+            animateCounter(stat, target);
+          });
+          heroStatsObserver.unobserve(entry.target);
+        }
+      });
+    },
+    {
+      threshold: 0.5,
+      rootMargin: "0px 0px -100px 0px",
+    }
+  );
 }
 
 // Setup event listeners
@@ -218,6 +241,7 @@ async function loadCategories() {
     const response = await fetch("/api/categories");
     const categories = await response.json();
     allCategories = categories;
+    await loadProjects();
     renderCategoryFilters();
   } catch (error) {
     console.error("Error loading categories:", error);
@@ -318,7 +342,7 @@ function renderProjects(projects) {
       currentLanguage === "ar" ? project.status_ar : project.status;
 
     // Get image URL
-    let imageUrl = project.image_filename;
+    let imageUrl = `/static/uploads/${project.image_filename}`;
     if (
       !imageUrl ||
       (!imageUrl.startsWith("http") && !imageUrl.startsWith("/"))

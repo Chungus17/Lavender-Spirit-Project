@@ -321,7 +321,7 @@ def admin():
 
     message = None
     current_user = User.query.filter_by(username=session.get("username")).first()
-    tab = None
+    tab = "project"
 
     if request.method == "POST":
         form_type = request.form.get("form_type")
@@ -397,9 +397,7 @@ def admin():
             tab = "category"
 
             new_category = Category(
-                name=name,
-                name_ar= name_ar,
-                created_at=datetime.utcnow()
+                name=name, name_ar=name_ar, created_at=datetime.utcnow()
             )
 
             db.session.add(new_category)
@@ -417,7 +415,6 @@ def admin():
             db.session.commit()
             message = "Category updated successfully!"
 
-
     projects = Project.query.order_by(Project.created_at.desc()).all()
     users = User.query.order_by(User.created_at.desc()).all()
     categories = Category.query.order_by(Category.name).all()
@@ -428,7 +425,7 @@ def admin():
         users=users,
         categories=categories,
         current_user=current_user,
-        tab=tab
+        tab=tab,
     )
 
 
@@ -508,6 +505,86 @@ def edit_user():
 
     flash("User updated successfully!", "success")
     return redirect(url_for("admin"))
+
+
+@app.route("/delete/<string:entity_type>/<int:entity_id>", methods=["POST"])
+def delete_entity(entity_type, entity_id):
+    if not session.get("admin_logged_in"):
+        flash("You must be logged in to delete.", "error")
+        return redirect(url_for("login"))
+
+    current_user = User.query.filter_by(username=session.get("username")).first()
+    if not current_user:
+        flash("User not found.", "error")
+        return redirect(url_for("login"))
+
+    try:
+        if entity_type == "project":
+            entity = Project.query.get_or_404(entity_id)
+            # Delete associated image file if it exists and is not the default image
+            if (
+                entity.image_filename
+                and entity.image_filename
+                != "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg"
+            ):
+                try:
+                    os.remove(
+                        os.path.join(app.config["UPLOAD_FOLDER"], entity.image_filename)
+                    )
+                except OSError:
+                    pass  # Ignore if file doesn't exist
+            db.session.delete(entity)
+            message = "Project deleted successfully!"
+            tab = "project"
+
+        elif entity_type == "user":
+            if current_user.role != "admin":
+                flash("Only admins can delete users.", "error")
+                return redirect(url_for("admin"))
+            entity = User.query.get_or_404(entity_id)
+            # Prevent admin from deleting themselves
+            if entity.id == current_user.id:
+                message = "You cannot delete your own account."
+                return redirect(url_for("admin"))
+            db.session.delete(entity)
+            message = "User deleted successfully!"
+            tab = "user"
+
+        elif entity_type == "category":
+            if current_user.role != "admin":
+                flash("Only admins can delete categories.", "error")
+                return redirect(url_for("admin"))
+            entity = Category.query.get_or_404(entity_id)
+            # Check if category has associated projects
+            if Project.query.filter_by(category_id=entity_id).count() > 0:
+                message = "Cannot delete category with associated projects!"
+                return redirect(url_for("admin"))
+            db.session.delete(entity)
+            message = "Category deleted successfully!"
+            tab = "category"
+
+        else:
+            flash("Invalid entity type.", "error")
+            return redirect(url_for("admin"))
+
+        db.session.commit()
+        projects = Project.query.order_by(Project.created_at.desc()).all()
+        users = User.query.order_by(User.created_at.desc()).all()
+        categories = Category.query.order_by(Category.name).all()
+        return render_template(
+            "admin.html",
+            message=message,
+            projects=projects,
+            users=users,
+            categories=categories,
+            current_user=current_user,
+            tab=tab,
+        )
+
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting {entity_type}: {str(e)}", "error")
+        return redirect(url_for("admin"))
 
 
 @app.route("/login", methods=["GET", "POST"])
