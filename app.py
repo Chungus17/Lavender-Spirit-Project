@@ -13,22 +13,31 @@ from datetime import datetime
 import os
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
+import firebase_admin
+from firebase_admin import credentials, storage
+import uuid
+from urllib.parse import urlparse, unquote
 
 app = Flask(__name__)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-# Database configuration for Render
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-if app.config["SQLALCHEMY_DATABASE_URI"] and app.config[
-    "SQLALCHEMY_DATABASE_URI"
-].startswith("postgres://"):
-    app.config["SQLALCHEMY_DATABASE_URI"] = app.config[
-        "SQLALCHEMY_DATABASE_URI"
-    ].replace("postgres://", "postgresql://", 1)
+cred = credentials.Certificate("lavender-spirit-firebase-adminsdk-fbsvc-86fcbc6a09.json")
+firebase_admin.initialize_app(cred, {
+    'storageBucket': 'lavender-spirit.firebasestorage.app'
+})
 
-# DATABASE_PATH = os.getenv("DATABASE_PATH", os.path.join(basedir, "lavender_spirit.db"))
-# app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DATABASE_PATH}"
+# Database configuration for Render
+# app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+# if app.config["SQLALCHEMY_DATABASE_URI"] and app.config[
+#     "SQLALCHEMY_DATABASE_URI"
+# ].startswith("postgres://"):
+#     app.config["SQLALCHEMY_DATABASE_URI"] = app.config[
+#         "SQLALCHEMY_DATABASE_URI"
+#     ].replace("postgres://", "postgresql://", 1)
+
+DATABASE_PATH = os.getenv("DATABASE_PATH", os.path.join(basedir, "lavender_spirit.db"))
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DATABASE_PATH}"
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "your-secret-key-here")
@@ -62,8 +71,6 @@ class Project(db.Model):
     description = db.Column(db.Text, nullable=False)
     description_ar = db.Column(db.Text, nullable=False)
     image_filename = db.Column(db.String(255), nullable=True)
-    project_type = db.Column(db.String(100), nullable=False)
-    project_type_ar = db.Column(db.String(100), nullable=False)
     status = db.Column(db.String(50), nullable=False)
     status_ar = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -136,8 +143,6 @@ with app.app_context():
                 description="A premium 200-unit residential development featuring modern amenities and sustainable design in North Riyadh.",
                 description_ar="تطوير سكني متقدم يضم 200 وحدة مع وسائل راحة حديثة وتصميم مستدام في شمال الرياض.",
                 image_filename="Example-1.jpeg",
-                project_type="Residential",
-                project_type_ar="سكني",
                 status="Completed",
                 status_ar="مكتمل",
                 category_id=residential_cat.id if residential_cat else None,
@@ -148,8 +153,6 @@ with app.app_context():
                 description="30-story commercial complex with state-of-the-art facilities in Riyadh's business district.",
                 description_ar="مجمع تجاري من 30 طابقًا مع مرافق حديثة في منطقة الأعمال بالرياض.",
                 image_filename="Example-1.jpeg",
-                project_type="Commercial",
-                project_type_ar="تجاري",
                 status="In Progress",
                 status_ar="قيد التنفيذ",
                 category_id=residential_cat.id if residential_cat else None,
@@ -160,8 +163,6 @@ with app.app_context():
                 description="Major road and utility infrastructure project supporting Riyadh's urban expansion initiatives.",
                 description_ar="مشروع رئيسي للطرق والمرافق يدعم مبادرات التوسع الحضري في الرياض.",
                 image_filename="Example-3.jpeg",
-                project_type="Infrastructure",
-                project_type_ar="بنية تحتية",
                 status="Completed",
                 status_ar="مكتمل",
                 category_id=infrastructure_cat.id if infrastructure_cat else None,
@@ -172,8 +173,6 @@ with app.app_context():
                 description="Modern manufacturing facility with specialized construction requirements and safety standards.",
                 description_ar="منشأة تصنيع حديثة مع متطلبات بناء متخصصة ومعايير سلامة عالية.",
                 image_filename="Example-1.jpeg",
-                project_type="Industrial",
-                project_type_ar="صناعي",
                 status="Completed",
                 status_ar="مكتمل",
                 category_id=industrial_cat.id if industrial_cat else None,
@@ -184,8 +183,6 @@ with app.app_context():
                 description="Integrated residential and commercial complex with retail spaces and community facilities.",
                 description_ar="مجمع سكني وتجاري متكامل مع مساحات تجارية ومرافق مجتمعية.",
                 image_filename="Example-3.jpeg",
-                project_type="Mixed-Use",
-                project_type_ar="متعدد الاستخدامات",
                 status="Planning",
                 status_ar="تخطيط",
                 category_id=mixed_use_cat.id if mixed_use_cat else None,
@@ -196,8 +193,6 @@ with app.app_context():
                 description="Modern medical facility with advanced infrastructure and patient-centered design.",
                 description_ar="منشأة طبية حديثة مع بنية تحتية متقدمة وتصميم يركز على المرضى.",
                 image_filename="Example-1.jpeg",
-                project_type="Healthcare",
-                project_type_ar="رعاية صحية",
                 status="In Progress",
                 status_ar="قيد التنفيذ",
                 category_id=healthcare_cat.id if healthcare_cat else None,
@@ -243,8 +238,6 @@ def get_projects():
             "description": project.description,
             "description_ar": project.description_ar,
             "image_filename": project.image_filename,
-            "project_type": project.project_type,
-            "project_type_ar": project.project_type_ar,
             "status": project.status,
             "status_ar": project.status_ar,
             "created_at": project.created_at.isoformat(),
@@ -331,24 +324,23 @@ def admin():
             title_ar = request.form.get("title_ar")
             description = request.form.get("description")
             description_ar = request.form.get("description_ar")
-            project_type = request.form.get("project_type")
-            project_type_ar = request.form.get("project_type_ar")
             status = request.form.get("status")
             status_ar = request.form.get("status_ar")
             category_id = request.form.get("category_id")
             file = request.files.get("image_file")
             tab = "project"
 
-            image_filename = None
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-                image_filename = filename
-            else:
-                # Use a default image URL if no file provided
-                image_filename = (
-                    "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg"
-                )
+                ext = filename.rsplit('.', 1)[-1].lower()
+                unique_filename = f"{uuid.uuid4().hex}.{ext}"
+
+                bucket = storage.bucket()
+                blob = bucket.blob(f"project_images/{unique_filename}")
+                blob.upload_from_file(file, content_type=file.content_type)
+                blob.make_public()
+
+                image_filename = f"project_images/{unique_filename}"
 
             new_project = Project(
                 title=title,
@@ -356,8 +348,6 @@ def admin():
                 description=description,
                 description_ar=description_ar,
                 image_filename=image_filename,
-                project_type=project_type,
-                project_type_ar=project_type_ar,
                 status=status,
                 status_ar=status_ar,
                 category_id=category_id if category_id else None,
@@ -373,19 +363,36 @@ def admin():
             project.title_ar = request.form.get("title_ar")
             project.description = request.form.get("description")
             project.description_ar = request.form.get("description_ar")
-            project.project_type = request.form.get("project_type")
-            project.project_type_ar = request.form.get("project_type_ar")
             project.status = request.form.get("status")
             project.status_ar = request.form.get("status_ar")
             category_id = request.form.get("category_id")
             project.category_id = category_id if category_id else None
+            previousImage = request.form.get("previous_image_file")
             tab = "project"
 
             file = request.files.get("image_file")
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-                project.image_filename = filename
+                ext = filename.rsplit('.', 1)[-1].lower()
+                unique_filename = f"{uuid.uuid4().hex}.{ext}"
+
+                bucket = storage.bucket()
+                blob = bucket.blob(f"project_images/{unique_filename}")
+                blob.upload_from_file(file, content_type=file.content_type)
+                blob.make_public()
+
+                project.image_filename = f"project_images/{unique_filename}"
+            
+            # DELETE THE PREVIOUS IMAGE
+            if previousImage:
+                try:
+                    bucket = storage.bucket()
+                    blob = bucket.blob(previousImage)
+                    if blob.exists():
+                        blob.delete()
+                        print(f"Deleted Firebase image: {previousImage}")
+                except Exception as e:
+                    print(f"Error deleting from Firebase: {e}")
 
             db.session.commit()
             message = "Project updated successfully!"
@@ -521,21 +528,19 @@ def delete_entity(entity_type, entity_id):
     try:
         if entity_type == "project":
             entity = Project.query.get_or_404(entity_id)
-            # Delete associated image file if it exists and is not the default image
-            if (
-                entity.image_filename
-                and entity.image_filename
-                != "https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg"
-            ):
-                try:
-                    os.remove(
-                        os.path.join(app.config["UPLOAD_FOLDER"], entity.image_filename)
-                    )
-                except OSError:
-                    pass  # Ignore if file doesn't exist
-            db.session.delete(entity)
-            message = "Project deleted successfully!"
             tab = "project"
+
+            if entity.image_filename:
+                try:
+                    bucket = storage.bucket()
+                    blob = bucket.blob(entity.image_filename)
+                    if blob.exists():
+                        blob.delete()
+                        print(f"Deleted Firebase image: {entity.image_filename}")
+                except Exception as e:
+                    print(f"Error deleting from Firebase: {e}")
+            db.session.delete(entity)
+            message = "Project Deleted SUccessfully!"
 
         elif entity_type == "user":
             if current_user.role != "admin":

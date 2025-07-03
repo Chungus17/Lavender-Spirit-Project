@@ -69,7 +69,7 @@
               <h4>{{ project.title }}</h4>
               <p><strong>Status:</strong> {{ project.status }}</p>
               <img
-                src="{{ url_for('static', filename='uploads/' + project.image_filename) }}"
+                src="https://storage.googleapis.com/lavender-spirit.firebasestorage.app/{{ project.image_filename }}"
                 alt="{{ project.title }} Image"
               />
               <p>{{ project.description }}</p>
@@ -77,13 +77,12 @@
                 data-id="{{ project.id }}"
                 data-title="{{ project.title|e }}"
                 data-title-ar="{{ project.title_ar|e }}"
-                data-project-type="{{ project.project_type|e }}"
-                data-project-type-ar="{{ project.project_type_ar|e }}"
                 data-category-id="{{ project.category_id }}"
                 data-status="{{ project.status|e }}"
                 data-status-ar="{{ project.status_ar|e }}"
                 data-description="{{ project.description|e }}"
                 data-description-ar="{{ project.description_ar|e }}"
+                data-previousImage="{{ project.image_filename }}"
                 onclick="editProject(this)"
               >
                 Edit
@@ -449,26 +448,6 @@
           </div>
 
           <div class="form-field">
-            <label>Project Type:</label>
-            <input
-              type="text"
-              name="project_type"
-              id="edit-project-type"
-              required
-            />
-          </div>
-
-          <div class="form-field">
-            <label>نوع المشروع:</label>
-            <input
-              type="text"
-              name="project_type_ar"
-              id="edit-project-type-ar"
-              required
-            />
-          </div>
-
-          <div class="form-field">
             <label>Category:</label>
             <select name="category_id" id="edit-project-category" required>
               <option value="" disabled>Choose category</option>
@@ -529,7 +508,16 @@
             <input type="file" name="image_file" />
           </div>
 
-          <input type="submit" value="Save Changes" />
+          <div class="form-field">
+            <label for="previous_image_file">Current Image:</label>
+            <input
+              type="text"
+              name="previous_image_file"
+              id="previous_image_file"
+            />
+          </div>
+
+          <input type="submit" value="Save Changes" id="save_changes_button" />
         </form>
       </div>
     </div>
@@ -614,6 +602,11 @@
       </div>
     </div>
 
+    <!--SPINNER-->
+    <div id="spinner-overlay" style="display: none">
+      <div class="modern-spinner"></div>
+    </div>
+
     <script>
       window.addEventListener("DOMContentLoaded", () => {
         const flash1 = document.getElementById("flash-message-1");
@@ -636,6 +629,14 @@
             flash3.style.display = "none";
           }, 3000); // 3 seconds = 3000 milliseconds
         }
+
+        const forms = document.querySelectorAll("form");
+
+        forms.forEach((form) => {
+          form.addEventListener("submit", function () {
+            document.getElementById("spinner-overlay").style.display = "flex";
+          });
+        });
       });
 
       function openModal(id) {
@@ -644,14 +645,11 @@
 
       function editProject(button) {
         document.getElementById("edit-project-id").value = button.dataset.id;
+        console.log(button.dataset);
         document.getElementById("edit-project-title").value =
           button.dataset.title;
         document.getElementById("edit-project-title-ar").value =
           button.dataset["titleAr"];
-        document.getElementById("edit-project-type").value =
-          button.dataset.projectType;
-        document.getElementById("edit-project-type-ar").value =
-          button.dataset["projectTypeAr"];
         document.getElementById("edit-project-category").value =
           button.dataset.categoryId;
         document.getElementById("edit-project-category-ar").value =
@@ -664,6 +662,8 @@
           button.dataset.description;
         document.getElementById("edit-project-description-ar").value =
           button.dataset["descriptionAr"];
+        document.getElementById("previous_image_file").value =
+          button.dataset.previousimage;
 
         openModal("edit-project-modal");
       }

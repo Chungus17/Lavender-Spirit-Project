@@ -51,7 +51,8 @@ const translations = {
     contactSubtitle:
       "Do you have an idea, a design, or a project ready for construction? The Lavender Spirit team is ready to support you every step of the way — from consultation to pricing and execution.",
     locationLabel: "Location",
-    locationText: "Riyadh – Al-Qirawan District – King Salman bin Abdulaziz Road",
+    locationText:
+      "Riyadh – Al-Qirawan District – King Salman bin Abdulaziz Road",
     phoneLabel: "Phone",
     emailLabel: "Email",
     hoursLabel: "Business Hours",
@@ -110,11 +111,9 @@ const translations = {
     feature1Desc:
       "ننفّذ مشاريعنا بأيادٍ خبيرة واحترافية عالية لضمان تشطيب يليق بطموحك، من السكني إلى التجاري.",
     feature2Title: "التزام بالموعد",
-    feature2Desc:
-      "نسلّم في الوقت المحدد، دون المساس بالجودة أو السلامة.",
+    feature2Desc: "نسلّم في الوقت المحدد، دون المساس بالجودة أو السلامة.",
     feature3Title: "ابتكار في كل خطوة",
-    feature3Desc:
-      "نستخدم أحدث التقنيات ونعتمد حلول تصميم ذكية تتجاوز توقعاتك.",
+    feature3Desc: "نستخدم أحدث التقنيات ونعتمد حلول تصميم ذكية تتجاوز توقعاتك.",
     startProject: "ابدأ مشروعك",
     projectsTitle: "مشاريع نفتخر بها… جودة تُرى بالعين",
     projectsSubtitle:
@@ -245,7 +244,8 @@ async function loadCategories() {
     const response = await fetch("/api/categories");
     const categories = await response.json();
     allCategories = categories;
-    await loadProjects();
+    console.log(categories);
+    await loadProjects(categories);
     renderCategoryFilters();
   } catch (error) {
     console.error("Error loading categories:", error);
@@ -253,7 +253,7 @@ async function loadCategories() {
 }
 
 // Load projects from API
-async function loadProjects(categoryId = "all") {
+async function loadProjects(categories, categoryId = "all") {
   const loadingIndicator = document.getElementById("loading-indicator");
   const projectsGrid = document.getElementById("projects-grid");
   const noProjectsDiv = document.getElementById("no-projects");
@@ -275,7 +275,8 @@ async function loadProjects(categoryId = "all") {
 
     allProjects = projects;
     total_projects = allProjects.length;
-    renderProjects(projects);
+    allCategories = categories;
+    renderProjects(projects, categories);
 
     if (projects.length === 0) {
       if (noProjectsDiv) noProjectsDiv.style.display = "block";
@@ -325,12 +326,12 @@ function filterByCategory(categoryId) {
     if (categoryFilter) {
       categoryFilter.value = categoryId;
     }
-    loadProjects(categoryId);
+    loadProjects(allCategories, categoryId);
   }, 300);
 }
 
 // Render projects grid
-function renderProjects(projects) {
+function renderProjects(projects, categories) {
   const projectsGrid = document.getElementById("projects-grid");
   if (!projectsGrid) return;
 
@@ -340,13 +341,20 @@ function renderProjects(projects) {
     const title = currentLanguage === "ar" ? project.title_ar : project.title;
     const description =
       currentLanguage === "ar" ? project.description_ar : project.description;
-    const projectType =
-      currentLanguage === "ar" ? project.project_type_ar : project.project_type;
+    // Find the matching category
+    const category = categories.find((cat) => cat.id === project.category_id);
+    const projectCategory = category
+      ? currentLanguage === "ar"
+        ? category.name_ar
+        : category.name
+      : currentLanguage === "ar"
+      ? "غير مصنف"
+      : "Uncategorized";
     const status =
       currentLanguage === "ar" ? project.status_ar : project.status;
 
     // Get image URL
-    let imageUrl = `/static/uploads/${project.image_filename}`;
+    let imageUrl = `https://storage.googleapis.com/lavender-spirit.firebasestorage.app/${project.image_filename}`;
     if (
       !imageUrl ||
       (!imageUrl.startsWith("http") && !imageUrl.startsWith("/"))
@@ -366,7 +374,7 @@ function renderProjects(projects) {
           <h3>${title}</h3>
           <p>${description}</p>
           <div class="project-meta">
-            <span class="project-type">${projectType}</span>
+            <span class="project-type">${projectCategory}</span>
             <span class="project-status">${status}</span>
           </div>
         </div>
@@ -382,7 +390,7 @@ function toggleLanguage() {
   currentLanguage = currentLanguage === "en" ? "ar" : "en";
   updateLanguage();
   renderCategoryFilters();
-  renderProjects(allProjects);
+  renderProjects(allProjects, allCategories);
 }
 
 // Update language throughout the page
