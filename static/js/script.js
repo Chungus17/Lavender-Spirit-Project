@@ -6,6 +6,11 @@ let currentLanguage = "en";
 let selectedCategoryId = "all";
 let total_projects = 0;
 
+// PDF file paths configuration
+const pdfFiles = {
+  "company-brochure": "/static/company-brochure.pdf",
+};
+
 // Translation object
 const translations = {
   en: {
@@ -21,6 +26,7 @@ const translations = {
       "We offer professional services in finishing, interior and exterior decoration, and the execution of construction and concrete projects in Riyadh and across the Kingdom.",
     getQuote: "Get Quote",
     viewProjects: "View Projects",
+    downloadBrochure: "Download Brochure",
     projectsCompleted: "Projects Completed",
     happyClients: "Happy Clients",
     yearsExperience: "Years Experience",
@@ -39,7 +45,7 @@ const translations = {
     feature3Desc:
       "Utilizing cutting-edge technology and modern construction techniques to exceed client expectations.",
     startProject: "Start Your Project",
-    projectsTitle: "Projects We’re Proud Of — Quality You Can See",
+    projectsTitle: "Projects We're Proud Of — Quality You Can See",
     projectsSubtitle:
       "At Lavender Spirit, we leave our mark on every project we execute — from construction and finishing to full-scale contracting, all carried out with care and professionalism. Here, we present a selection of our distinguished projects across the Kingdom of Saudi Arabia, reflecting our commitment to quality, precision, and elegance.",
     filterByCategory: "Filter by Category",
@@ -54,6 +60,7 @@ const translations = {
     locationText:
       "Riyadh – Al-Qirawan District – King Salman bin Abdulaziz Road",
     phoneLabel: "Phone",
+    phoneNumber: "+966 50 940 1050",
     emailLabel: "Email",
     hoursLabel: "Business Hours",
     hoursText:
@@ -86,7 +93,26 @@ const translations = {
       "We provide quality construction, finishing, and decoration services across Riyadh.",
     copyright:
       "© 2025 Lavender Spirit Construction & Contracting. All rights reserved.",
+    // Downloads section translations
+    downloadsTitle: "Company Resources & Guides",
+    downloadsSubtitle:
+      "Access our comprehensive company materials and service guides to learn more about Lavender Spirit's expertise and offerings.",
+    companyBrochureTitle: "Company Brochure",
+    companyBrochureDesc:
+      "Discover our company story, values, and comprehensive overview of our construction and contracting services across Saudi Arabia.",
+    servicesGuideTitle: "Services Guide",
+    servicesGuideDesc:
+      "Detailed information about our construction services, project types, and specialized offerings for residential and commercial clients.",
+    portfolioGuideTitle: "Project Portfolio",
+    portfolioGuideDesc:
+      "Explore our completed projects with detailed case studies, before and after photos, and client testimonials.",
+    downloadNow: "Download Now",
+    needMoreInfoTitle: "Need More Information?",
+    needMoreInfoDesc:
+      "Contact our team directly for custom quotes, project consultations, or any specific questions about our services.",
+    contactUsNow: "Contact Us Now",
   },
+
   ar: {
     brandName: "روح الخزامى",
     navHome: "الرئيسية",
@@ -97,27 +123,28 @@ const translations = {
     heroTitle1: "تشطيبك الجاي...",
     heroTitle2: "بروح الخزامى",
     heroSubtitle:
-      "نُقدّم خدمات احترافية في التشطيبات والديكورات الداخلية والخارجية، وتنفيذ مشاريع البناء والخرسانة في الرياض وكافة أنحاء المملكة. نضمن لك جودة عالية، تصاميم عصرية، تنفيذ دقيق، وأسعار تنافسية",
+      "نُقدّم خدمات احترافية في التشطيبات والديكورات الداخلية والخارجية، وتنفيذ مشاريع البناء والخرسانة في الرياض وكافة أنحاء المملكة. نضمن لك جودة عالية، تصاميم عصرية، تنفيذ دقيق، وأسعار تنافسية",
     getQuote: "احصل على عرض سعر",
     viewProjects: "عرض المشاريع",
+    downloadBrochure: "تحميل بروشو",
     projectsCompleted: "مشروع مكتمل",
     happyClients: "عميل سعيد",
     yearsExperience: "سنة خبرة",
     expertTeam: "فريق خبير",
     aboutTitle: "نحو واقع أجمل… نصمّم ونبني بثقة",
     aboutSubtitle:
-      "بخبرة تتجاوز 15 عامًا في عالم البناء والتشطيبات، أصبحت روح الخزامى اسمًا موثوقًا في تنفيذ المشاريع السكنية والتجارية، بابتكار وجودة عالية في كل تفصيل.",
+      "بخبرة تتجاوز 15 عامًا في عالم البناء والتشطيبات، أصبحت روح الخزامى اسمًا موثوقًا في تنفيذ المشاريع السكنية والتجارية، بابتكار وجودة عالية في كل تفصيل.",
     feature1Title: "جودة تُلاحظ",
     feature1Desc:
       "ننفّذ مشاريعنا بأيادٍ خبيرة واحترافية عالية لضمان تشطيب يليق بطموحك، من السكني إلى التجاري.",
     feature2Title: "التزام بالموعد",
     feature2Desc: "نسلّم في الوقت المحدد، دون المساس بالجودة أو السلامة.",
     feature3Title: "ابتكار في كل خطوة",
-    feature3Desc: "نستخدم أحدث التقنيات ونعتمد حلول تصميم ذكية تتجاوز توقعاتك.",
+    feature3Desc: "نستخدم أحدث التقنيات ونعتمد حلول تصميم ذكية تتجاوز توقعاتك.",
     startProject: "ابدأ مشروعك",
     projectsTitle: "مشاريع نفتخر بها… جودة تُرى بالعين",
     projectsSubtitle:
-      "في روح الخزامى، نضع بصمتنا في كل مشروع ننفذه — من البناء والتشطيب إلى المقاولات المتكاملة، نُنفّذ بعناية واحتراف. نعرض لكم هنا مجموعة من مشاريعنا المميزة في أنحاء المملكة العربية السعودية، والتي تعكس التزامنا بالجودة، الدقة، والأناقة.",
+      "في روح الخزامى، نضع بصمتنا في كل مشروع ننفذه — من البناء والتشطيب إلى المقاولات المتكاملة، نُنفّذ بعناية واحتراف. نعرض لكم هنا مجموعة من مشاريعنا المميزة في أنحاء المملكة العربية السعودية، والتي تعكس التزامنا بالجودة، الدقة، والأناقة.",
     filterByCategory: "تصفية حسب الفئة",
     allProjects: "جميع المشاريع",
     loadingProjects: "جاري تحميل المشاريع...",
@@ -125,15 +152,17 @@ const translations = {
     noProjectsMessage: "لا توجد مشاريع تطابق الفئة المحددة.",
     contactTitle: "ابدأ خطوتك الأولى معنا",
     contactSubtitle:
-      "هل لديك فكرة، تصميم، أو مشروع جاهز للبناء؟ فريق روح الخزامى مستعد لمساعدتك في كل خطوة — من الاستشارة إلى التسعير والتنفيذ.",
+      "هل لديك فكرة، تصميم، أو مشروع جاهز للبناء؟ فريق روح الخزامى مستعد لمساعدتك في كل خطوة — من الاستشارة إلى التسعير والتنفيذ.",
 
     locationLabel: "الموقع",
-    locationText: "الرياض - حي القيروان - طريق الملك سلمان بن عبد العزيز",
+    locationText: "الرياض - حي القيروان - طريق الملك سلمان بن عبد العزيز",
     phoneLabel: "الهاتف",
+    phoneNumber2: "+966 50 940 1050",
+    phoneNumber: "1050 940 50 966+",
     emailLabel: "البريد الإلكتروني",
     hoursLabel: "ساعات العمل",
     hoursText: "الأحد - الخميس: 8:00 صباحًا - 6:00 مساءً\nالجمعة - السبت: مغلق",
-    formTitle: "راسلنا الآن — وسنعود إليك خلال 24 ساعة",
+    formTitle: "راسلنا الآن — وسنعود إليك خلال 24 ساعة",
     namePlaceholder: "اسمك",
     emailPlaceholder: "بريدك الإلكتروني",
     phonePlaceholder: "هاتفك",
@@ -158,8 +187,26 @@ const translations = {
     footerAddress1: "طريق الملك فهد، العليا",
     footerAddress2: "الرياض، المملكة العربية السعودية",
     footerDesc:
-      "نتميز في تقديم حلول البناء والتشطيب والديكور في جميع أنحاء الرياض، مع التزام بالجودة، الابتكار، ورضا العميل في كل مشروع.",
+      "نتميز في تقديم حلول البناء والتشطيب والديكور في جميع أنحاء الرياض، مع التزام بالجودة، الابتكار، ورضا العميل في كل مشروع.",
     copyright: "© 2025 روح الخزامى للبناء والمقاولات. جميع الحقوق محفوظة.",
+    // Downloads section translations
+    downloadsTitle: "موارد الشركة والأدلة",
+    downloadsSubtitle:
+      "احصل على مواد شركتنا الشاملة وأدلة الخدمات لتتعرف أكثر على خبرة روح الخزامى وعروضها.",
+    companyBrochureTitle: "بروشور الشركة",
+    companyBrochureDesc:
+      "اكتشف قصة شركتنا وقيمنا ونظرة شاملة على خدمات البناء والمقاولات في جميع أنحاء المملكة العربية السعودية.",
+    servicesGuideTitle: "دليل الخدمات",
+    servicesGuideDesc:
+      "معلومات مفصلة حول خدمات البناء لدينا وأنواع المشاريع والعروض المتخصصة للعملاء السكنيين والتجاريين.",
+    portfolioGuideTitle: "محفظة المشاريع",
+    portfolioGuideDesc:
+      "استكشف مشاريعنا المكتملة مع دراسات حالة مفصلة وصور قبل وبعد وشهادات العملاء.",
+    downloadNow: "تحميل الآن",
+    needMoreInfoTitle: "تحتاج المزيد من المعلومات؟",
+    needMoreInfoDesc:
+      "تواصل مع فريقنا مباشرة للحصول على عروض أسعار مخصصة أو استشارات المشاريع أو أي أسئلة محددة حول خدماتنا.",
+    contactUsNow: "اتصل بنا الآن",
   },
 };
 
@@ -206,7 +253,6 @@ function initializeHeroAnimations() {
 
 // Setup event listeners
 function setupEventListeners() {
-  // Language toggle
   const languageSwitch = document.getElementById("language-switch");
   if (languageSwitch) {
     languageSwitch.addEventListener("change", toggleLanguage);
@@ -237,6 +283,100 @@ function setupEventListeners() {
     });
   }
 }
+
+// PDF Download Function
+function downloadPDF(pdfType) {
+  const pdfPath = pdfFiles[pdfType];
+
+  if (!pdfPath) {
+    const errorMessage =
+      currentLanguage === "ar"
+        ? "عذراً، الملف غير متوفر حالياً."
+        : "Sorry, the file is not available at the moment.";
+    alert(errorMessage);
+    return;
+  }
+
+  // Create a temporary link and trigger download
+  const link = document.createElement("a");
+  link.href = pdfPath;
+  link.download = pdfPath.split("/").pop(); // Get filename from path
+  link.target = "_blank";
+
+  // Add to DOM temporarily
+  document.body.appendChild(link);
+
+  // Trigger download
+  link.click();
+
+  // Remove from DOM
+  document.body.removeChild(link);
+
+  // Show success message
+  const successMessage =
+    currentLanguage === "ar" ? "تم بدء تحميل الملف" : "Download started";
+
+  // Create a temporary success notification
+  showDownloadNotification(successMessage);
+}
+
+// Show download notification
+function showDownloadNotification(message) {
+  const notification = document.createElement("div");
+  notification.style.cssText = `
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    font-weight: 500;
+    animation: slideInRight 0.3s ease-out;
+  `;
+
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  // Remove after 3 seconds
+  setTimeout(() => {
+    notification.style.animation = "slideOutRight 0.3s ease-out";
+    setTimeout(() => {
+      if (notification.parentNode) {
+        document.body.removeChild(notification);
+      }
+    }, 300);
+  }, 1500);
+}
+
+// Add CSS animations for notifications
+const notificationStyles = document.createElement("style");
+notificationStyles.textContent = `
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  
+  @keyframes slideOutRight {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+`;
+document.head.appendChild(notificationStyles);
 
 // Load categories from API
 async function loadCategories() {

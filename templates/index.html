@@ -165,6 +165,14 @@
               <span class="play-icon">▶</span>
               <span>View Projects</span>
             </button>
+            <button
+              class="btn btn-primary pulse-btn"
+              onclick="downloadPDF('company-brochure')"
+              data-translate="downloadBrochure"
+            >
+              <i class="fas fa-download"></i>
+              <span>Download Brochure</span>
+            </button>
           </div>
         </div>
       </div>
@@ -280,7 +288,7 @@
       <div class="container">
         <div class="section-header">
           <h2 class="section-title" data-translate="projectsTitle">
-            Projects We’re Proud Of — Quality You Can See
+            Projects We're Proud Of — Quality You Can See
           </h2>
           <p class="section-subtitle" data-translate="projectsSubtitle">
             At Lavender Spirit, we leave our mark on every project we execute —
@@ -374,7 +382,7 @@
                 <div class="contact-icon">📞</div>
                 <div class="contact-text">
                   <h4 data-translate="phoneLabel">Phone</h4>
-                  <p>+966 50 940 1050</p>
+                  <p data-translate="phoneNumber">+966 50 940 1050</p>
                 </div>
               </div>
 
@@ -530,6 +538,51 @@
       </div>
     </section>
 
+    <!-- Downloads Section -->
+    <section class="downloads">
+      <div class="container">
+        <div class="downloads-content">
+          <div class="downloads-header">
+            <h2 class="section-title" data-translate="downloadsTitle">
+              Company Resources & Guides
+            </h2>
+            <p class="section-subtitle" data-translate="downloadsSubtitle">
+              Access our comprehensive company materials and service guides to
+              learn more about Lavender Spirit's expertise and offerings.
+            </p>
+          </div>
+
+          <div class="download-button">
+            <button
+              class="btn btn-primary pulse-btn"
+              onclick="downloadPDF('company-brochure')"
+              data-translate="downloadBrochure"
+            >
+              <i class="fas fa-download"></i>
+              <span>Download Brochure</span>
+            </button>
+          </div>
+
+          <div class="downloads-cta">
+            <div class="cta-content">
+              <h3 data-translate="needMoreInfoTitle">Need More Information?</h3>
+              <p data-translate="needMoreInfoDesc">
+                Contact our team directly for custom quotes, project
+                consultations, or any specific questions about our services.
+              </p>
+              <button
+                class="btn btn-primary"
+                onclick="scrollToSection('contact')"
+                data-translate="contactUsNow"
+              >
+                Contact Us Now
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
       <div class="container">
@@ -598,12 +651,16 @@
             <h4 data-translate="contactInfo">Social Media</h4>
             <ul class="social-media">
               <li>
-                <a href="https://www.instagram.com/lavender_spirit_design7" target="_blank"
+                <a
+                  href="https://www.instagram.com/lavender_spirit_design7"
+                  target="_blank"
                   ><i class="fab fa-instagram"></i> Instagram</a
                 >
               </li>
               <li>
-                <a href="https://www.tiktok.com/@lavender_spirit_design7/" target="_blank"
+                <a
+                  href="https://www.tiktok.com/@lavender_spirit_design7/"
+                  target="_blank"
                   ><i class="fab fa-tiktok"></i> TikTok</a
                 >
               </li>
@@ -620,13 +677,14 @@
                 >
               </li>
               <li>
-                <a href="https://wa.me/966XXXXXXXXX" target="_blank"
+                <a href="https://wa.me/966509401050" target="_blank"
                   ><i class="fab fa-whatsapp"></i> WhatsApp</a
                 >
               </li>
             </ul>
           </div>
         </div>
+
         <div class="footer-bottom">
           <p data-translate="copyright">
             &copy; 2025 Lavender Spirit Construction & Contracting. All rights

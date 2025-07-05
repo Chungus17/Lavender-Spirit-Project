@@ -212,6 +212,88 @@ body.arabic .section-subtitle {
   width: 100%;
 }
 
+/* Download Button Styles */
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1.4rem 2.8rem;
+  background: linear-gradient(135deg, var(--primary-color), #8b1db8);
+  color: var(--white);
+  border: 2px solid var(--primary-color);
+  border-radius: var(--radius-8);
+  font-weight: var(--fw-medium);
+  font-size: 1.6rem;
+  transition: var(--transition);
+  box-shadow: 0 8px 25px rgba(106, 13, 173, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-download:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(106, 13, 173, 0.4);
+  background: linear-gradient(135deg, #8b1db8, var(--primary-color));
+}
+
+.btn-download::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.6s;
+}
+
+.btn-download:hover::before {
+  left: 100%;
+}
+
+.btn-download i {
+  font-size: 1.8rem;
+  animation: downloadPulse 2s infinite;
+}
+
+.btn-download.btn-small {
+  padding: 1rem 2rem;
+  font-size: 1.4rem;
+}
+
+.btn-download.btn-small i {
+  font-size: 1.6rem;
+}
+
+@keyframes downloadPulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Hero Download Section */
+.hero-download {
+  margin-top: 3rem;
+  animation: downloadFadeIn 1s ease-out 1.5s forwards;
+  opacity: 0;
+}
+
+@keyframes downloadFadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
 /*!---------------------------------N A V B A R---------------------------------------*/
 .navbar {
   position: fixed;
@@ -1380,6 +1462,115 @@ body.arabic .form-group textarea {
   min-height: 120px;
 }
 
+/*!----------------------------D O W N L O A D S   S E C T I O N---------------------------------*/
+.downloads {
+  background: linear-gradient(
+    135deg,
+    var(--light-gray) 0%,
+    var(--off-white) 100%
+  );
+  padding: var(--section-padding) 0;
+  position: relative;
+}
+
+.downloads::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%236a0dad" fill-opacity="0.03"><circle cx="30" cy="30" r="2"/></g></g></svg>');
+  pointer-events: none;
+}
+
+.downloads-content {
+  position: relative;
+  z-index: 1;
+}
+
+.downloads-header {
+  text-align: center;
+  margin-bottom: 6rem;
+}
+
+.downloads-header .section-title,
+.downloads-header .section-subtitle {
+  text-align: center !important;
+}
+
+.download-button {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 6rem;
+}
+
+.downloads-cta {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--accent-color)
+  );
+  border-radius: var(--radius-10);
+  padding: 4rem;
+  text-align: center;
+  color: var(--white);
+  position: relative;
+  overflow: hidden;
+}
+
+.downloads-cta::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('data:image/svg+xml,<svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"><g fill="none" fill-rule="evenodd"><g fill="%23ffffff" fill-opacity="0.1"><circle cx="20" cy="20" r="1"/></g></g></svg>');
+  pointer-events: none;
+}
+
+.cta-content {
+  position: relative;
+  z-index: 1;
+}
+
+.cta-content h3 {
+  font-family: var(--ff-playfair);
+  font-size: 2.8rem;
+  font-weight: var(--fw-bold);
+  margin-bottom: 1.5rem;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+body.arabic .cta-content h3 {
+  font-family: var(--ff-arabic);
+}
+
+.cta-content p {
+  font-size: 1.7rem;
+  line-height: 1.6;
+  margin-bottom: 3rem;
+  opacity: 0.95;
+}
+
+body.arabic .cta-content p {
+  line-height: 2;
+}
+
+.cta-content .btn-primary {
+  background-color: var(--white);
+  color: var(--primary-color);
+  border-color: var(--white);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.cta-content .btn-primary:hover {
+  background-color: var(--off-white);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
+}
+
 /*!----------------------------F O O T E R---------------------------------*/
 .footer {
   background-color: var(--dark-gray);
@@ -1527,6 +1718,11 @@ body.arabic .footer-section p {
     width: 250px;
   }
 
+  .hero-download {
+    display: flex;
+    justify-content: center;
+  }
+
   .about-content {
     grid-template-columns: 1fr;
     gap: 4rem;
@@ -1560,6 +1756,14 @@ body.arabic .footer-section p {
 
   .filter-dropdown {
     max-width: 100%;
+  }
+
+  .downloads-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .downloads-cta {
+    padding: 3rem 2rem;
   }
 }
 
@@ -1652,6 +1856,53 @@ body.arabic .footer-section p {
     padding: 0.8rem 1.5rem;
     margin-bottom: 5rem;
   }
+
+  .btn-download {
+    padding: 1.2rem 2rem;
+    font-size: 1.4rem;
+  }
+
+  .btn-download i {
+    font-size: 1.6rem;
+  }
+
+  .hero-download {
+    margin-top: 2rem;
+  }
+
+  .downloads-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .download-card {
+    padding: 2rem;
+  }
+
+  .download-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .download-icon i {
+    font-size: 2.4rem;
+  }
+
+  .download-content h3 {
+    font-size: 2rem;
+  }
+
+  .downloads-cta {
+    padding: 2rem 1.5rem;
+  }
+
+  .cta-content h3 {
+    font-size: 2.4rem;
+  }
+
+  .cta-content p {
+    font-size: 1.5rem;
+  }
 }
 
 /* RTL specific adjustments */
@@ -1672,12 +1923,21 @@ body.arabic .footer-section p {
   text-align: center;
 }
 
+[dir="rtl"] .downloads-header {
+  text-align: center;
+}
+
+[dir="rtl"] .downloads-cta {
+  text-align: center;
+}
+
 /* Smooth transitions for language switching */
 body,
 .nav-container,
 .hero-content,
 .about-content,
 .contact-content,
-.footer-content {
+.footer-content,
+.downloads-content {
   transition: var(--transition);
 }
