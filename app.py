@@ -29,9 +29,9 @@ cred_dict = json.loads(firebase_cred_json)
 
 # Initialize with parsed credentials
 cred = credentials.Certificate(cred_dict)
-firebase_admin.initialize_app(cred, {
-    'storageBucket': 'lavender-spirit.firebasestorage.app'
-})
+firebase_admin.initialize_app(
+    cred, {"storageBucket": "lavender-spirit.firebasestorage.app"}
+)
 
 # cred = credentials.Certificate("lavender-spirit-firebase-adminsdk-fbsvc-86fcbc6a09.json")
 # firebase_admin.initialize_app(cred, {
@@ -223,6 +223,18 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+def load_admin_context(tab="project", message=None, errorMessage=None):
+    return {
+        "projects": Project.query.order_by(Project.created_at.desc()).all(),
+        "users": User.query.order_by(User.created_at.desc()).all(),
+        "categories": Category.query.order_by(Category.name).all(),
+        "current_user": User.query.filter_by(username=session.get("username")).first(),
+        "message": message,
+        "tab": tab,
+        "errorMessage": errorMessage,
+    }
+
+
 # Routes
 @app.route("/")
 def index():
@@ -343,7 +355,7 @@ def admin():
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                ext = filename.rsplit('.', 1)[-1].lower()
+                ext = filename.rsplit(".", 1)[-1].lower()
                 unique_filename = f"{uuid.uuid4().hex}.{ext}"
 
                 bucket = storage.bucket()
@@ -384,7 +396,7 @@ def admin():
             file = request.files.get("image_file")
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                ext = filename.rsplit('.', 1)[-1].lower()
+                ext = filename.rsplit(".", 1)[-1].lower()
                 unique_filename = f"{uuid.uuid4().hex}.{ext}"
 
                 bucket = storage.bucket()
@@ -393,7 +405,7 @@ def admin():
                 blob.make_public()
 
                 project.image_filename = f"project_images/{unique_filename}"
-            
+
             # DELETE THE PREVIOUS IMAGE
             if previousImage:
                 try:
@@ -454,8 +466,8 @@ def add_user():
 
     current_user = User.query.filter_by(username=session.get("username")).first()
     if current_user.role != "admin":
-        flash("Only admins can add users.", "error")
-        return redirect(url_for("admin"))
+        return render_template("admin.html", **load_admin_context(tab="user", errorMessage="Only admins can delete users."))
+
 
     username = request.form.get("username").strip()
     password = request.form.get("password")
@@ -463,25 +475,23 @@ def add_user():
     role = request.form.get("role")
 
     if User.query.filter_by(username=username).first():
-        flash("Username already exists.", "error")
-        return redirect(url_for("admin"))
+        return render_template("admin.html", **load_admin_context(tab="user", errorMessage="Username already exists"))
+
 
     if password != confirm_password:
-        flash("Passwords do not match.", "error")
-        return redirect(url_for("admin"))
+        return render_template("admin.html", **load_admin_context(tab="user", errorMessage="Passwords do not match"))
+
 
     if not username or not password or not role:
-        flash("All fields are required.", "error")
-        return redirect(url_for("admin"))
+        return render_template("admin.html", **load_admin_context(tab="user", errorMessage="All fields are rquired"))
+
 
     new_user = User(username=username, role=role)
     new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
 
-    flash("User added successfully!", "success")
-    return redirect(url_for("admin"))
-
+    return render_template("admin.html", **load_admin_context(tab="user", message="User added successfully!"))
 
 @app.route("/edit_user", methods=["POST"])
 def edit_user():
@@ -493,8 +503,7 @@ def edit_user():
     user = User.query.get_or_404(user_id)
 
     if current_user.role != "admin" and current_user.id != user.id:
-        flash("You can only edit your own profile.", "error")
-        return redirect(url_for("admin"))
+        return render_template("admin.html", **load_admin_context(tab="user", errorMessage="You can only edit your own file!"))
 
     new_username = request.form.get("username").strip()
     password = request.form.get("password")
@@ -503,16 +512,13 @@ def edit_user():
 
     existing_user = User.query.filter_by(username=new_username).first()
     if existing_user and existing_user.id != user.id:
-        flash("Username already exists.", "error")
-        return redirect(url_for("admin"))
+        return render_template("admin.html", **load_admin_context(tab="user", errorMessage="Username already exists"))
 
     if password and password != confirm_password:
-        flash("Passwords do not match.", "error")
-        return redirect(url_for("admin"))
+        return render_template("admin.html", **load_admin_context(tab="user", errorMessage="Passwords do not match"))
 
     if not new_username:
-        flash("Username is required.", "error")
-        return redirect(url_for("admin"))
+        return render_template("admin.html", **load_admin_context(tab="user", errorMessage="username is required"))
 
     user.username = new_username
     if password:
@@ -521,8 +527,7 @@ def edit_user():
         user.role = role
     db.session.commit()
 
-    flash("User updated successfully!", "success")
-    return redirect(url_for("admin"))
+    return render_template("admin.html", **load_admin_context(tab="user", message="User updated Successfully!"))
 
 
 @app.route("/delete/<string:entity_type>/<int:entity_id>", methods=["POST"])
@@ -555,26 +560,22 @@ def delete_entity(entity_type, entity_id):
 
         elif entity_type == "user":
             if current_user.role != "admin":
-                flash("Only admins can delete users.", "error")
-                return redirect(url_for("admin"))
+                return render_template("admin.html", **load_admin_context(tab="user", errorMessage="Only admins can delete users"))
             entity = User.query.get_or_404(entity_id)
             # Prevent admin from deleting themselves
             if entity.id == current_user.id:
-                message = "You cannot delete your own account."
-                return redirect(url_for("admin"))
+                return render_template("admin.html", **load_admin_context(tab="user", errorMessage="You cannot delete your own account"))
             db.session.delete(entity)
             message = "User deleted successfully!"
             tab = "user"
 
         elif entity_type == "category":
             if current_user.role != "admin":
-                flash("Only admins can delete categories.", "error")
-                return redirect(url_for("admin"))
+                return render_template("admin.html", **load_admin_context(tab="category", errorMessage="Only admins can delete categories"))
             entity = Category.query.get_or_404(entity_id)
             # Check if category has associated projects
             if Project.query.filter_by(category_id=entity_id).count() > 0:
-                message = "Cannot delete category with associated projects!"
-                return redirect(url_for("admin"))
+                return render_template("admin.html", **load_admin_context(tab="category", errorMessage="cannot delete categories with associated porjects"))
             db.session.delete(entity)
             message = "Category deleted successfully!"
             tab = "category"

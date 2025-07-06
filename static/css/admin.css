@@ -115,6 +115,15 @@ body {
   border-radius: 5px;
 }
 
+.message2 {
+  background-color: #b91010a4;
+  border-left: 4px solid #620a0a;
+  color: #620a0a;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+
 h2 {
   font-size: 24px;
 }
