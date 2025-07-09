@@ -2,12 +2,15 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif,
+    "Arial Unicode MS";
 }
 
 body {
   background-color: #f0f2f5;
   color: #333;
+  direction: rtl;
+  text-align: right;
 }
 
 .flex-container {
@@ -24,7 +27,7 @@ body {
   flex-direction: column;
   position: fixed;
   top: 0;
-  left: 0;
+  right: 0;
   height: 100%;
   z-index: 100;
   transform: translateX(0);
@@ -32,7 +35,7 @@ body {
 }
 
 .sidebar.hidden {
-  transform: translateX(-100%);
+  transform: translateX(100%);
 }
 
 .sidebar .logo {
@@ -55,6 +58,7 @@ body {
   color: #fff;
   text-decoration: none;
   transition: background-color 0.3s;
+  text-align: right;
 }
 
 .sidebar nav a:hover {
@@ -97,35 +101,48 @@ body {
   color: #333;
   padding: 15px;
   cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
 }
 
 /* Main Content */
 .main-content {
   flex: 1;
   padding: 20px;
-  margin-left: 250px;
+  margin-right: 250px;
+  margin-left: 0;
 }
 
 .message {
   background-color: #d1fae5;
-  border-left: 4px solid #10b981;
+  border-right: 4px solid #10b981;
+  border-left: none;
   color: #065f46;
   padding: 15px;
   margin-bottom: 20px;
   border-radius: 5px;
+  text-align: right;
 }
 
 .message2 {
   background-color: #b91010a4;
-  border-left: 4px solid #620a0a;
+  border-right: 4px solid #620a0a;
+  border-left: none;
   color: #620a0a;
   padding: 15px;
   margin-bottom: 20px;
   border-radius: 5px;
+  text-align: right;
 }
 
 h2 {
   font-size: 24px;
+  text-align: right;
+}
+
+h3 {
+  text-align: right;
 }
 
 /* Projects Grid */
@@ -142,6 +159,7 @@ h2 {
   padding: 15px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s;
+  text-align: right;
 }
 
 .project-card:hover {
@@ -159,11 +177,13 @@ h2 {
 .project-card h4 {
   font-size: 18px;
   margin-bottom: 10px;
+  text-align: right;
 }
 
 .project-card p {
   margin-bottom: 10px;
   font-size: 14px;
+  text-align: right;
 }
 
 /* Buttons */
@@ -176,6 +196,7 @@ input[type="submit"] {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
+  font-family: inherit;
 }
 
 button:hover,
@@ -194,15 +215,19 @@ form {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  text-align: right;
 }
 
 .form-field {
   margin-bottom: 18px;
+  text-align: right;
 }
 
 label {
   font-weight: bold;
   margin-bottom: 5px;
+  display: block;
+  text-align: right;
 }
 
 input[type="text"],
@@ -214,11 +239,14 @@ select {
   border: 1px solid #d1d5db;
   border-radius: 5px;
   font-size: 14px;
+  text-align: right;
+  font-family: inherit;
 }
 
 textarea {
   resize: vertical;
   min-height: 100px;
+  text-align: right;
 }
 
 input[type="file"] {
@@ -234,12 +262,13 @@ input[type="file"] {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   overflow: hidden;
+  direction: rtl;
 }
 
 .users-table th,
 .users-table td {
   padding: 12px;
-  text-align: left;
+  text-align: right;
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -279,6 +308,8 @@ input[type="file"] {
   transform: scale(0.7);
   transition: transform 0.3s ease;
   overflow-y: scroll;
+  direction: rtl;
+  text-align: right;
 }
 
 .modal-content::-webkit-scrollbar {
@@ -290,7 +321,7 @@ input[type="file"] {
 }
 
 .close-btn {
-  float: right;
+  float: left;
   font-size: 24px;
   cursor: pointer;
   color: #6b7280;
@@ -311,7 +342,7 @@ input[type="file"] {
 /* Responsive Design */
 @media (max-width: 1024px) {
   .sidebar {
-    transform: translateX(-100%);
+    transform: translateX(100%);
   }
 
   .sidebar.active {
@@ -319,6 +350,7 @@ input[type="file"] {
   }
 
   .main-content {
+    margin-right: 0;
     margin-left: 0;
   }
 
@@ -344,7 +376,7 @@ input[type="file"] {
   width: 60px;
   height: 60px;
   border: 6px solid #ddd;
-  border-top-color: #6a0dad; /* Blue or your brand color */
+  border-top-color: #6a0dad;
   border-radius: 50%;
   animation: spin 0.9s linear infinite;
 }
@@ -353,4 +385,57 @@ input[type="file"] {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Additional RTL specific styles */
+[dir="rtl"] .flex-container {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .form-header {
+  flex-direction: row-reverse;
+}
+
+/* Fix button alignment in project cards */
+.project-card form {
+  display: inline;
+}
+
+.project-card button {
+  margin-left: 5px;
+  margin-right: 0;
+}
+
+/* Ensure proper spacing for Arabic text */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  line-height: 1.6;
+}
+
+/* Style adjustments for better Arabic text rendering */
+input[type="text"]:not([name="title"]):not([name="project_type"]):not(
+    [name="description"]
+  ):not([name="name"]),
+textarea:not([name="description"]),
+select:not([name="category_id"]):not([name="status"]) {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif,
+    "Arial Unicode MS";
+}
+
+/* Keep English inputs left-aligned */
+input[name="title"],
+input[name="project_type"],
+textarea[name="description"],
+select[name="category_id"]
+  option:not([value*="ا"]):not([value*="ب"]):not([value*="ت"]),
+select[name="status"]
+  option:not([value*="ا"]):not([value*="ب"]):not([value*="ت"]),
+  .english-label {
+  text-align: left;
+  direction: ltr;
 }

@@ -1533,6 +1533,7 @@ body.arabic .form-group textarea {
 .cta-content {
   position: relative;
   z-index: 1;
+  text-align: center !important;
 }
 
 .cta-content h3 {
@@ -1541,6 +1542,7 @@ body.arabic .form-group textarea {
   font-weight: var(--fw-bold);
   margin-bottom: 1.5rem;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  text-align: center !important;
 }
 
 body.arabic .cta-content h3 {
@@ -1552,6 +1554,7 @@ body.arabic .cta-content h3 {
   line-height: 1.6;
   margin-bottom: 3rem;
   opacity: 0.95;
+  text-align: center !important;
 }
 
 body.arabic .cta-content p {

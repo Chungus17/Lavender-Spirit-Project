@@ -2,7 +2,7 @@
 let allProjects = [];
 let allUnfilteredProjects = [];
 let allCategories = [];
-let currentLanguage = "en";
+let currentLanguage = "ar";
 let selectedCategoryId = "all";
 let total_projects = 0;
 
@@ -456,7 +456,6 @@ function renderCategoryFilters() {
 
   categoryFilter.innerHTML = optionsHTML;
 }
-
 let debounceTimeout;
 function filterByCategory(categoryId) {
   clearTimeout(debounceTimeout);

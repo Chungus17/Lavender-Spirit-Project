@@ -22,33 +22,15 @@ from urllib.parse import urlparse, unquote
 app = Flask(__name__)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+# )
 
-# Load the JSON string from env and parse it
-firebase_cred_json = os.environ.get("FIREBASE_CREDENTIALS")
-cred_dict = json.loads(firebase_cred_json)
+cred = credentials.Certificate("lavender-spirit-firebase-adminsdk-fbsvc-86fcbc6a09.json")
+firebase_admin.initialize_app(cred, {
+    'storageBucket': 'lavender-spirit.firebasestorage.app'
+})
 
-# Initialize with parsed credentials
-cred = credentials.Certificate(cred_dict)
-firebase_admin.initialize_app(
-    cred, {"storageBucket": "lavender-spirit.firebasestorage.app"}
-)
-
-# cred = credentials.Certificate("lavender-spirit-firebase-adminsdk-fbsvc-86fcbc6a09.json")
-# firebase_admin.initialize_app(cred, {
-#     'storageBucket': 'lavender-spirit.firebasestorage.app'
-# })
-
-# Database configuration for Render
-app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
-if app.config["SQLALCHEMY_DATABASE_URI"] and app.config[
-    "SQLALCHEMY_DATABASE_URI"
-].startswith("postgres://"):
-    app.config["SQLALCHEMY_DATABASE_URI"] = app.config[
-        "SQLALCHEMY_DATABASE_URI"
-    ].replace("postgres://", "postgresql://", 1)
-
-# DATABASE_PATH = os.getenv("DATABASE_PATH", os.path.join(basedir, "lavender_spirit.db"))
-# app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DATABASE_PATH}"
+DATABASE_PATH = os.getenv("DATABASE_PATH", os.path.join(basedir, "lavender_spirit.db"))
+app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DATABASE_PATH}"
 
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "your-secret-key-here")
@@ -120,101 +102,101 @@ with app.app_context():
         db.session.add(default_user)
         db.session.commit()
 
-    # Add sample categories if none exist
-    if Category.query.count() == 0:
-        sample_categories = [
-            Category(name="Residential", name_ar="سكني"),
-            Category(name="Commercial", name_ar="تجاري"),
-            Category(name="Infrastructure", name_ar="بنية تحتية"),
-            Category(name="Industrial", name_ar="صناعي"),
-            Category(name="Mixed-Use", name_ar="متعدد الاستخدامات"),
-            Category(name="Healthcare", name_ar="رعاية صحية"),
-        ]
+    # # Add sample categories if none exist
+    # if Category.query.count() == 0:
+    #     sample_categories = [
+    #         Category(name="Residential", name_ar="سكني"),
+    #         Category(name="Commercial", name_ar="تجاري"),
+    #         Category(name="Infrastructure", name_ar="بنية تحتية"),
+    #         Category(name="Industrial", name_ar="صناعي"),
+    #         Category(name="Mixed-Use", name_ar="متعدد الاستخدامات"),
+    #         Category(name="Healthcare", name_ar="رعاية صحية"),
+    #     ]
 
-        for category in sample_categories:
-            db.session.add(category)
+    #     for category in sample_categories:
+    #         db.session.add(category)
 
-        db.session.commit()
-        print("Sample categories added to database!")
+    #     db.session.commit()
+    #     print("Sample categories added to database!")
 
-    # Add sample projects if none exist
-    if Project.query.count() == 0:
-        # Get categories for assignment
-        residential_cat = Category.query.filter_by(name="Residential").first()
-        commercial_cat = Category.query.filter_by(name="Commercial").first()
-        infrastructure_cat = Category.query.filter_by(name="Infrastructure").first()
-        industrial_cat = Category.query.filter_by(name="Industrial").first()
-        mixed_use_cat = Category.query.filter_by(name="Mixed-Use").first()
-        healthcare_cat = Category.query.filter_by(name="Healthcare").first()
+    # # Add sample projects if none exist
+    # if Project.query.count() == 0:
+    #     # Get categories for assignment
+    #     residential_cat = Category.query.filter_by(name="Residential").first()
+    #     commercial_cat = Category.query.filter_by(name="Commercial").first()
+    #     infrastructure_cat = Category.query.filter_by(name="Infrastructure").first()
+    #     industrial_cat = Category.query.filter_by(name="Industrial").first()
+    #     mixed_use_cat = Category.query.filter_by(name="Mixed-Use").first()
+    #     healthcare_cat = Category.query.filter_by(name="Healthcare").first()
 
-        sample_projects = [
-            Project(
-                title="Luxury Residential Complex",
-                title_ar="مجمع سكني فاخر",
-                description="A premium 200-unit residential development featuring modern amenities and sustainable design in North Riyadh.",
-                description_ar="تطوير سكني متقدم يضم 200 وحدة مع وسائل راحة حديثة وتصميم مستدام في شمال الرياض.",
-                image_filename="Example-1.jpeg",
-                status="Completed",
-                status_ar="مكتمل",
-                category_id=residential_cat.id if residential_cat else None,
-            ),
-            Project(
-                title="Commercial Office Tower",
-                title_ar="برج مكاتب تجاري",
-                description="30-story commercial complex with state-of-the-art facilities in Riyadh's business district.",
-                description_ar="مجمع تجاري من 30 طابقًا مع مرافق حديثة في منطقة الأعمال بالرياض.",
-                image_filename="Example-1.jpeg",
-                status="In Progress",
-                status_ar="قيد التنفيذ",
-                category_id=residential_cat.id if residential_cat else None,
-            ),
-            Project(
-                title="Infrastructure Development",
-                title_ar="تطوير البنية التحتية",
-                description="Major road and utility infrastructure project supporting Riyadh's urban expansion initiatives.",
-                description_ar="مشروع رئيسي للطرق والمرافق يدعم مبادرات التوسع الحضري في الرياض.",
-                image_filename="Example-3.jpeg",
-                status="Completed",
-                status_ar="مكتمل",
-                category_id=infrastructure_cat.id if infrastructure_cat else None,
-            ),
-            Project(
-                title="Industrial Facility",
-                title_ar="منشأة صناعية",
-                description="Modern manufacturing facility with specialized construction requirements and safety standards.",
-                description_ar="منشأة تصنيع حديثة مع متطلبات بناء متخصصة ومعايير سلامة عالية.",
-                image_filename="Example-1.jpeg",
-                status="Completed",
-                status_ar="مكتمل",
-                category_id=industrial_cat.id if industrial_cat else None,
-            ),
-            Project(
-                title="Mixed-Use Development",
-                title_ar="تطوير متعدد الاستخدامات",
-                description="Integrated residential and commercial complex with retail spaces and community facilities.",
-                description_ar="مجمع سكني وتجاري متكامل مع مساحات تجارية ومرافق مجتمعية.",
-                image_filename="Example-3.jpeg",
-                status="Planning",
-                status_ar="تخطيط",
-                category_id=mixed_use_cat.id if mixed_use_cat else None,
-            ),
-            Project(
-                title="Healthcare Center",
-                title_ar="مركز رعاية صحية",
-                description="Modern medical facility with advanced infrastructure and patient-centered design.",
-                description_ar="منشأة طبية حديثة مع بنية تحتية متقدمة وتصميم يركز على المرضى.",
-                image_filename="Example-1.jpeg",
-                status="In Progress",
-                status_ar="قيد التنفيذ",
-                category_id=healthcare_cat.id if healthcare_cat else None,
-            ),
-        ]
+    #     sample_projects = [
+    #         Project(
+    #             title="Luxury Residential Complex",
+    #             title_ar="مجمع سكني فاخر",
+    #             description="A premium 200-unit residential development featuring modern amenities and sustainable design in North Riyadh.",
+    #             description_ar="تطوير سكني متقدم يضم 200 وحدة مع وسائل راحة حديثة وتصميم مستدام في شمال الرياض.",
+    #             image_filename="Example-1.jpeg",
+    #             status="Completed",
+    #             status_ar="مكتمل",
+    #             category_id=residential_cat.id if residential_cat else None,
+    #         ),
+    #         Project(
+    #             title="Commercial Office Tower",
+    #             title_ar="برج مكاتب تجاري",
+    #             description="30-story commercial complex with state-of-the-art facilities in Riyadh's business district.",
+    #             description_ar="مجمع تجاري من 30 طابقًا مع مرافق حديثة في منطقة الأعمال بالرياض.",
+    #             image_filename="Example-1.jpeg",
+    #             status="In Progress",
+    #             status_ar="قيد التنفيذ",
+    #             category_id=residential_cat.id if residential_cat else None,
+    #         ),
+    #         Project(
+    #             title="Infrastructure Development",
+    #             title_ar="تطوير البنية التحتية",
+    #             description="Major road and utility infrastructure project supporting Riyadh's urban expansion initiatives.",
+    #             description_ar="مشروع رئيسي للطرق والمرافق يدعم مبادرات التوسع الحضري في الرياض.",
+    #             image_filename="Example-3.jpeg",
+    #             status="Completed",
+    #             status_ar="مكتمل",
+    #             category_id=infrastructure_cat.id if infrastructure_cat else None,
+    #         ),
+    #         Project(
+    #             title="Industrial Facility",
+    #             title_ar="منشأة صناعية",
+    #             description="Modern manufacturing facility with specialized construction requirements and safety standards.",
+    #             description_ar="منشأة تصنيع حديثة مع متطلبات بناء متخصصة ومعايير سلامة عالية.",
+    #             image_filename="Example-1.jpeg",
+    #             status="Completed",
+    #             status_ar="مكتمل",
+    #             category_id=industrial_cat.id if industrial_cat else None,
+    #         ),
+    #         Project(
+    #             title="Mixed-Use Development",
+    #             title_ar="تطوير متعدد الاستخدامات",
+    #             description="Integrated residential and commercial complex with retail spaces and community facilities.",
+    #             description_ar="مجمع سكني وتجاري متكامل مع مساحات تجارية ومرافق مجتمعية.",
+    #             image_filename="Example-3.jpeg",
+    #             status="Planning",
+    #             status_ar="تخطيط",
+    #             category_id=mixed_use_cat.id if mixed_use_cat else None,
+    #         ),
+    #         Project(
+    #             title="Healthcare Center",
+    #             title_ar="مركز رعاية صحية",
+    #             description="Modern medical facility with advanced infrastructure and patient-centered design.",
+    #             description_ar="منشأة طبية حديثة مع بنية تحتية متقدمة وتصميم يركز على المرضى.",
+    #             image_filename="Example-1.jpeg",
+    #             status="In Progress",
+    #             status_ar="قيد التنفيذ",
+    #             category_id=healthcare_cat.id if healthcare_cat else None,
+    #         ),
+    #     ]
 
-        for project in sample_projects:
-            db.session.add(project)
+    #     for project in sample_projects:
+    #         db.session.add(project)
 
-        db.session.commit()
-        print("Sample projects added to database!")
+    #     db.session.commit()
+    #     print("Sample projects added to database!")
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
