@@ -363,7 +363,7 @@ def admin():
                 blob.upload_from_file(file, content_type=file.content_type)
                 blob.make_public()
 
-                image_filename = f"project_images/{unique_filename}"
+                image_filename = unique_filename
 
             new_project = Project(
                 title=title,
@@ -492,6 +492,7 @@ def add_user():
     db.session.commit()
 
     return render_template("admin.html", **load_admin_context(tab="user", message="User added successfully!"))
+
 
 @app.route("/edit_user", methods=["POST"])
 def edit_user():
