@@ -22,12 +22,30 @@ from urllib.parse import urlparse, unquote
 app = Flask(__name__)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+
+# # Load the JSON string from env and parse it
+# firebase_cred_json = os.environ.get("FIREBASE_CREDENTIALS")
+# cred_dict = json.loads(firebase_cred_json)
+
+# # Initialize with parsed credentials
+# cred = credentials.Certificate(cred_dict)
+# firebase_admin.initialize_app(
+#     cred, {"storageBucket": "lavender-spirit.firebasestorage.app"}
 # )
 
 cred = credentials.Certificate("lavender-spirit-firebase-adminsdk-fbsvc-86fcbc6a09.json")
 firebase_admin.initialize_app(cred, {
     'storageBucket': 'lavender-spirit.firebasestorage.app'
 })
+
+# # Database configuration for Render
+# app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+# if app.config["SQLALCHEMY_DATABASE_URI"] and app.config[
+#     "SQLALCHEMY_DATABASE_URI"
+# ].startswith("postgres://"):
+#     app.config["SQLALCHEMY_DATABASE_URI"] = app.config[
+#         "SQLALCHEMY_DATABASE_URI"
+#     ].replace("postgres://", "postgresql://", 1)
 
 DATABASE_PATH = os.getenv("DATABASE_PATH", os.path.join(basedir, "lavender_spirit.db"))
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{DATABASE_PATH}"
