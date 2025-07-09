@@ -7,6 +7,20 @@
     <link rel="stylesheet" href="/static/css/admin.css" />
   </head>
   <body>
+    <!-- Top Navigation Bar (Mobile) -->
+    <div class="top-navbar">
+      <div class="navbar-content">
+        <button class="hamburger" onclick="toggleSidebar()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <div class="navbar-logo">
+          <img src="/static/images/logo.svg" alt="شعار الشركة" />
+        </div>
+      </div>
+    </div>
+
     <div class="flex-container">
       <!-- Sidebar -->
       <div class="sidebar" id="sidebar">
@@ -40,21 +54,12 @@
 
       <!-- Main Content -->
       <div class="main-content">
-        <button class="hamburger" onclick="toggleSidebar()">☰</button>
-
         <!-- Projects Tab -->
         <div
           id="projects"
           class="tab-content {% if tab == 'project' %}active{% endif %}"
         >
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 20px;
-            "
-          >
+          <div class="content-header">
             <h2>جميع المشاريع</h2>
             <button onclick="openModal('add-project-modal')">
               إضافة مشروع
@@ -71,7 +76,7 @@
               <h4>{{ project.title_ar }}</h4>
               <p><strong>الحالة:</strong> {{ project.status_ar }}</p>
               <img
-                src="https://storage.googleapis.com/lavender-spirit.firebasestorage.app/{{ project.image_filename }}"
+                src="https://firebasestorage.googleapis.com/v0/b/lavender-spirit.firebasestorage.app/o/project_images%2F{{ project.image_filename }}?alt=media"
                 alt="{{ project.title }} صورة"
               />
               <p>{{ project.description_ar }}</p>
@@ -211,14 +216,7 @@
           id="users"
           class="tab-content {% if tab == 'user' %}active{% endif %}"
         >
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 20px;
-            "
-          >
+          <div class="content-header">
             <h2>جميع المستخدمين</h2>
             {% if current_user.role == 'admin' %}
             <button onclick="openModal('add-user-modal')">إضافة مستخدم</button>
@@ -323,14 +321,7 @@
           id="categories"
           class="tab-content {% if tab == 'category' %}active{% endif %}"
         >
-          <div
-            style="
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 20px;
-            "
-          >
+          <div class="content-header">
             <h2>جميع الفئات</h2>
             <button onclick="openModal('add-category-modal')">إضافة فئة</button>
           </div>
@@ -748,6 +739,7 @@
           window.innerWidth <= 1024 &&
           !sidebar.contains(event.target) &&
           !event.target.classList.contains("hamburger") &&
+          !event.target.closest(".hamburger") &&
           sidebar.classList.contains("active")
         ) {
           sidebar.classList.remove("active");
@@ -755,6 +747,4 @@
       };
     </script>
   </body>
-  
 </html>
-

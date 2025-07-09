@@ -456,6 +456,7 @@ function renderCategoryFilters() {
 
   categoryFilter.innerHTML = optionsHTML;
 }
+
 let debounceTimeout;
 function filterByCategory(categoryId) {
   clearTimeout(debounceTimeout);
@@ -493,7 +494,7 @@ function renderProjects(projects, categories) {
       currentLanguage === "ar" ? project.status_ar : project.status;
 
     // Get image URL
-    let imageUrl = `https://storage.googleapis.com/lavender-spirit.firebasestorage.app/${project.image_filename}`;
+    let imageUrl = `https://firebasestorage.googleapis.com/v0/b/lavender-spirit.firebasestorage.app/o/project_images%2F${project.image_filename}?alt=media`;
     if (
       !imageUrl ||
       (!imageUrl.startsWith("http") && !imageUrl.startsWith("/"))
